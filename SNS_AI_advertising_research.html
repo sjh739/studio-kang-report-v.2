@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNS 프로모션 비용 구조 및 AI 광고 사례 종합 연구 — 스튜디오캉 분석 포함</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --ink-light: #3d3d5c;
+    --ink-muted: #7a7a9d;
+    --paper: #faf9f7;
+    --paper-warm: #f4f1eb;
+    --accent: #c0392b;
+    --accent-gold: #d4a017;
+    --accent-blue: #2c5f8a;
+    --accent-teal: #1a7a6e;
+    --line: #ddd8ce;
+    --serif: 'Noto Serif KR', serif;
+    --sans: 'Noto Sans KR', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--serif);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.9;
+    font-size: 15px;
+  }
+
+  /* ─── COVER PAGE ──────────────────────────────────────────── */
+  .cover {
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-gold), var(--accent-blue), var(--accent-teal));
+  }
+  .cover-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 40px;
+    opacity: 0.9;
+  }
+  .cover-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.3;
+    margin-bottom: 24px;
+    border-left: 5px solid var(--accent);
+    padding-left: 28px;
+    max-width: 760px;
+  }
+  .cover-subtitle {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 18px;
+    color: #b8b8d0;
+    padding-left: 33px;
+    max-width: 640px;
+    margin-bottom: 60px;
+  }
+  .cover-meta {
+    border-top: 1px solid #333350;
+    padding-top: 32px;
+    display: flex;
+    gap: 60px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: #8888a8;
+  }
+  .cover-meta-item strong { display: block; color: var(--paper); font-size: 14px; margin-bottom: 4px; }
+  .cover-grid-deco {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.06;
+    display: grid;
+    grid-template-columns: repeat(8, 28px);
+    grid-template-rows: repeat(12, 28px);
+    gap: 6px;
+  }
+  .cover-grid-deco span {
+    background: var(--paper);
+    border-radius: 3px;
+  }
+
+  /* ─── TOC ─────────────────────────────────────────────────── */
+  .toc-section {
+    background: var(--paper-warm);
+    border-bottom: 3px solid var(--line);
+    padding: 60px 120px;
+  }
+  .toc-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 28px;
+  }
+  .toc-list { list-style: none; }
+  .toc-list > li {
+    border-bottom: 1px dotted var(--line);
+    padding: 10px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 40px;
+    font-weight: 500;
+  }
+  .toc-sub { padding-left: 56px; font-size: 13.5px; color: var(--ink-light); }
+  .toc-sub li { padding: 6px 0; }
+  .toc-sub .toc-num { color: var(--ink-muted); }
+
+  /* ─── MAIN LAYOUT ─────────────────────────────────────────── */
+  .paper-body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 60px 80px;
+  }
+
+  /* ─── CHAPTER / SECTION ──────────────────────────────────── */
+  .chapter {
+    margin-top: 72px;
+    padding-top: 40px;
+    border-top: 3px solid var(--ink);
+  }
+  .chapter-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .chapter-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 28px;
+    color: var(--ink);
+  }
+  .section {
+    margin-top: 44px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .subsection-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    margin-top: 24px;
+    margin-bottom: 10px;
+  }
+
+  p { margin-bottom: 14px; text-align: justify; }
+
+  /* ─── CALLOUT / BLOCKQUOTE ───────────────────────────────── */
+  .callout {
+    background: var(--paper-warm);
+    border-left: 4px solid var(--accent);
+    padding: 18px 24px;
+    margin: 24px 0;
+    font-size: 14px;
+    color: var(--ink-light);
+  }
+  .callout strong { color: var(--ink); }
+
+  blockquote {
+    font-style: italic;
+    border-left: 3px solid var(--accent-gold);
+    padding: 12px 20px;
+    color: var(--ink-light);
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  blockquote cite {
+    display: block;
+    font-style: normal;
+    font-size: 12px;
+    margin-top: 8px;
+    font-family: var(--mono);
+    color: var(--ink-muted);
+  }
+
+  /* ─── CHARTS ─────────────────────────────────────────────── */
+  .chart-wrap {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 28px;
+    margin: 28px 0;
+  }
+  .chart-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .chart-caption {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 10px;
+  }
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  canvas { max-width: 100%; }
+
+  /* ─── DATA TABLE ─────────────────────────────────────────── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    margin: 24px 0;
+  }
+  .data-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 11px 14px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .data-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .data-table .highlight { color: var(--accent); font-weight: 600; }
+  .table-label {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+
+  /* ─── CASE CARD ──────────────────────────────────────────── */
+  .case-card {
+    border: 1px solid var(--line);
+    margin: 32px 0;
+    background: #fff;
+    position: relative;
+  }
+  .case-num {
+    position: absolute;
+    top: -1px; left: -1px;
+    background: var(--accent);
+    color: white;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    letter-spacing: 1px;
+  }
+  .case-header {
+    background: var(--paper-warm);
+    padding: 32px 28px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .case-brand {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .case-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+  .case-body { padding: 24px 28px; }
+  .case-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .case-metric {
+    background: var(--paper-warm);
+    padding: 14px 16px;
+    border-left: 3px solid var(--line);
+  }
+  .case-metric.bad { border-left-color: var(--accent); }
+  .case-metric.neutral { border-left-color: var(--accent-gold); }
+  .case-metric-label {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .case-metric-value {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  /* ─── FAILURE ANALYSIS ───────────────────────────────────── */
+  .fail-analysis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .fail-item {
+    background: var(--paper-warm);
+    padding: 14px 16px;
+    border-radius: 2px;
+    font-size: 13.5px;
+  }
+  .fail-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .fail-label.tech { color: var(--accent-blue); }
+  .fail-label.emotional { color: var(--accent); }
+  .fail-label.ethical { color: var(--accent-teal); }
+  .fail-label.strategic { color: var(--accent-gold); }
+
+  /* ─── KANG STUDIO SECTION ────────────────────────────────── */
+  .kang-profile {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin: 24px 0;
+  }
+  .kang-models {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .model-card {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px;
+    text-align: center;
+    font-family: var(--sans);
+  }
+  .model-name { font-weight: 700; font-size: 14px; }
+  .model-tag { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+
+  /* ─── SWOT / MATRIX ──────────────────────────────────────── */
+  .swot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 20px 0;
+  }
+  .swot-cell {
+    background: #fff;
+    padding: 20px;
+  }
+  .swot-cell.s { background: #e8f5e9; }
+  .swot-cell.w { background: #fce4ec; }
+  .swot-cell.o { background: #e3f2fd; }
+  .swot-cell.t { background: #fff8e1; }
+  .swot-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .swot-label.s { color: #388e3c; }
+  .swot-label.w { color: #c62828; }
+  .swot-label.o { color: #1565c0; }
+  .swot-label.t { color: #f57f17; }
+  .swot-cell ul { list-style: none; font-family: var(--sans); font-size: 13px; line-height: 1.7; }
+  .swot-cell ul li::before { content: '— '; color: var(--ink-muted); }
+
+  /* ─── CITATION ───────────────────────────────────────────── */
+  .cite {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    vertical-align: super;
+    margin-left: 2px;
+  }
+  .references {
+    background: var(--paper-warm);
+    padding: 32px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    line-height: 1.8;
+    border-top: 3px solid var(--ink);
+    margin-top: 60px;
+  }
+  .references h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .ref-item { margin-bottom: 10px; padding-left: 28px; text-indent: -28px; color: var(--ink-light); }
+  .ref-num { font-weight: 700; color: var(--ink); margin-right: 8px; }
+
+  /* ─── TAGS ───────────────────────────────────────────────── */
+  .tag {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .tag.red { background: var(--accent); }
+  .tag.blue { background: var(--accent-blue); }
+  .tag.teal { background: var(--accent-teal); }
+
+  /* ─── PAGE BREAK ─────────────────────────────────────────── */
+  .page-break { height: 40px; }
+
+  /* ─── HIGHLIGHT BOX ──────────────────────────────────────── */
+  .highlight-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .highlight-box p { color: #ccc; margin-bottom: 8px; font-family: var(--sans); font-size: 14px; }
+  .highlight-box strong { color: white; }
+
+  /* ─── TIMELINE ───────────────────────────────────────────── */
+  .timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .timeline-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+
+  /* ─── INSIGHT BOX ────────────────────────────────────────── */
+  .insight {
+    background: #fff;
+    border: 2px solid var(--accent-gold);
+    padding: 20px 24px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .insight::before {
+    content: '💡 핵심 인사이트';
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent-gold);
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+  }
+  .insight p { margin-bottom: 0; font-family: var(--sans); font-size: 14px; color: var(--ink-light); }
+
+  /* ─── PRINT / MISC ───────────────────────────────────────── */
+  @media print {
+    .cover { page-break-after: always; }
+    .chapter { page-break-before: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-grid-deco">
+    <script>for(let i=0;i<96;i++) document.write('<span></span>')</script>
+  </div>
+  <div class="cover-label">Research Paper · 2025–2026</div>
+  <div class="cover-title">SNS 프로모션 비용 구조와<br>AI 광고 성공·실패 사례 연구</div>
+  <div class="cover-subtitle">
+    — 스튜디오캉(STUDIOKANG) 전략 분석 및 서비스 시나리오 포함<br>
+    소비자 반감 AI 광고의 실패 요인 vs. 캐드버리·카스·구글 성공 사례 비교
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <strong>연구 분야</strong>디지털 마케팅 / AI 광고
+    </div>
+    <div class="cover-meta-item">
+      <strong>분석 대상</strong>코카콜라, 토이저러스, 맥도날드, 스튜디오캉
+    </div>
+    <div class="cover-meta-item">
+      <strong>데이터 기준</strong>2023–2026년 국내외 사례
+    </div>
+    <div class="cover-meta-item">
+      <strong>작성일</strong>2026년 3월
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TABLE OF CONTENTS
+══════════════════════════════════════════════════════════ -->
+<div class="toc-section">
+  <div class="toc-title">목 차 · Contents</div>
+  <ul class="toc-list">
+    <li><span class="toc-num">I.</span> 연구 개요 및 배경</li>
+    <li>
+      <span class="toc-num">II.</span> SNS 프로모션 비용 구조 분석
+      <ul class="toc-sub">
+        <li><span class="toc-num">2.1</span> 주요 플랫폼별 광고 단가 비교</li>
+        <li><span class="toc-num">2.2</span> 인플루언서 마케팅 비용 체계</li>
+        <li><span class="toc-num">2.3</span> 콘텐츠 마케팅 예산 구조</li>
+      </ul>
+    </li>
+    <li>
+      <span class="toc-num">III.</span> AI 광고 활용 <strong>부정</strong> 사례 분석
+      <ul class="toc-sub">
+        <li><span class="toc-num">3.1</span> 구글 제미나이 "Dear Sydney" — 올림픽 광고 철회 (2024)</li>
+        <li><span class="toc-num">3.2</span> 게스 × 보그 AI 모델 '비비안' 논란 (2025.08)</li>
+        <li><span class="toc-num">3.3</span> 코카콜라 2025 AI 크리스마스 — 2년 연속 역풍</li>
+      </ul>
+    </li>
+    <li>
+      <span class="toc-num">IV.</span> AI 광고 활용 <strong>긍정</strong> 사례 분석
+      <ul class="toc-sub">
+        <li><span class="toc-num">4.1</span> 캐드버리 × 샤룩칸 'My Ad' — 칸 라이언즈 그랑프리 (2022~2023)</li>
+        <li><span class="toc-num">4.2</span> 카스 '축카스' AI 보이스 인터랙티브 캠페인 (2024)</li>
+        <li><span class="toc-num">4.3</span> 구글 Veo3 추수감사절 AI TV 광고 (2025.10)</li>
+      </ul>
+    </li>
+    <li>
+      <span class="toc-num">V.</span> 스튜디오캉(STUDIOKANG) 분석 및 서비스 시나리오
+      <ul class="toc-sub">
+        <li><span class="toc-num">5.1</span> 비즈니스 모델 및 서비스 구조</li>
+        <li><span class="toc-num">5.2</span> 시장 환경 분석 및 SWOT</li>
+        <li><span class="toc-num" style="color:var(--accent-gold);">5.3</span> <strong>연구자 현장 관찰 소견</strong> — 실제 작업물 비교 (개인 의견)</li>
+        <li><span class="toc-num">5.4</span> 전략적 시사점</li>
+        <li><span class="toc-num">5.5</span> 시나리오 1 — K-뷰티 D2C 브랜드 SNS 콘텐츠 정기 제작</li>
+        <li><span class="toc-num">5.6</span> 시나리오 2 — 지자체 관광청 AI 버츄얼 앰배서더 구축</li>
+      </ul>
+    </li>
+    <li><span class="toc-num">VI.</span> 종합 결론 및 제언</li>
+    <li><span class="toc-num">VII.</span> 참고문헌</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN BODY
+══════════════════════════════════════════════════════════ -->
+<div class="paper-body">
+
+  <!-- ───────────── CHAPTER I ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter I</div>
+    <div class="chapter-title">연구 개요 및 배경</div>
+
+    <p>소셜 네트워크 서비스(SNS)가 현대 마케팅의 핵심 채널로 부상하면서, 브랜드들은 디지털 광고 예산의 상당 부분을 SNS 플랫폼에 집중하고 있다. 특히 2022년 이후 생성형 AI(Generative AI) 기술의 급속한 발전은 광고 콘텐츠 제작 방식에 근본적인 변화를 가져오고 있으며, 이는 국내외 마케팅 산업 전반에 걸쳐 비용 효율성과 창의성이라는 두 가지 축을 중심으로 새로운 담론을 형성하고 있다.<span class="cite">[1]</span></p>
+
+    <p>그러나 AI 광고 기술의 확산과 동시에, AI가 지나치게 전면에 드러나거나 소비자의 정서적 공감을 이끌어내는 데 실패한 사례들이 속속 등장하고 있다. 코카콜라의 AI 크리스마스 광고(2024), 토이저러스의 OpenAI Sora 활용 브랜드 영상(2024), 맥도날드의 AI 음성 주문 시스템(2024) 등은 기술적 혁신에도 불구하고 소비자 반감과 브랜드 신뢰 하락을 야기한 대표적 사례로 기록되고 있다.</p>
+
+    <p>본 연구는 이러한 맥락에서 (1) SNS 프로모션의 비용 구조를 플랫폼별·유형별로 체계적으로 분석하고, (2) AI 광고 활용의 부정적 사례를 심층 검토하여 실패 요인을 도출하며, (3) 국내 AI 버츄얼 모델 에이전시 스튜디오캉(STUDIOKANG)의 비즈니스 맥락을 분석함으로써, AI 광고 활용에 관한 전략적 시사점을 제시하는 것을 목적으로 한다.</p>
+
+    <div class="callout">
+      <strong>연구 방법론:</strong> 본 연구는 국내외 미디어 보도, 업계 데이터(Shopify, 뷰저블, 크몽, 아이보스), 국제 학술지 논문(International Journal of Advertising, 2024)을 포함한 복수의 출처를 교차 검증하여 작성되었습니다.
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER II ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter II</div>
+    <div class="chapter-title">SNS 프로모션 비용 구조 분석</div>
+
+    <div class="section">
+      <div class="section-title">2.1 주요 플랫폼별 광고 단가 비교</div>
+
+      <p>SNS 광고는 크게 <strong>CPC(클릭당 비용)</strong>, <strong>CPM(1,000회 노출당 비용)</strong>, <strong>CPL(리드당 비용)</strong> 세 가지 과금 방식으로 구분된다. 플랫폼별 단가는 목표 오디언스의 경쟁도, 광고 형식, 타겟팅 정밀도에 따라 상당한 편차를 보인다.<span class="cite">[2]</span></p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">도표 1 — 플랫폼별 평균 CPC / CPM 비교 (2025년 기준)</div>
+        <canvas id="platformCostChart" height="260"></canvas>
+        <div class="chart-caption">출처: Shopify 광고 비용 보고서(2025.11), 뷰저블(2020), 아이보스(2024) 종합</div>
+      </div>
+
+      <p>2025년 11월 기준 Facebook 광고의 <strong>평균 CPC는 약 $0.87(약 1,200원)</strong>이며, <strong>CPM은 약 $16.06(약 23,000원)</strong>으로 집계되었다. 이는 Instagram이나 Google Ads와 비교하여 상대적으로 저렴한 수준이다.<span class="cite">[2]</span> 한편 Google Ads의 경우 업종에 따라 CPC가 $0.5~$10 수준으로 광범위한 분포를 보인다.<span class="cite">[3]</span></p>
+
+      <p>국내 매체 비교의 경우, 네이버 모바일 앱 메인화면 배너는 CPM 5,000원, 페이스북 동영상 2초 광고는 CPM 2,000~4,000원 수준으로 형성되어 있다.<span class="cite">[4]</span></p>
+
+      <div class="table-label">표 1. 주요 SNS 플랫폼 광고 단가 요약 (2025년 기준)</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>플랫폼</th><th>평균 CPC</th><th>평균 CPM</th><th>평균 CPL</th><th>주요 특징</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Facebook</td><td class="highlight">$0.87 (약 1,200원)</td><td>$16.06 (약 23,000원)</td><td>$18.75 (약 27,500원)</td><td>리타겟팅 광고 효율 최고</td></tr>
+          <tr><td>Instagram</td><td>$0.50~$0.95</td><td>$6~$12</td><td>$23 내외</td><td>비주얼 브랜딩, 쇼핑 연동</td></tr>
+          <tr><td>TikTok</td><td>$1.00 내외</td><td>$10 내외</td><td>미공개</td><td>숏폼 영상, Z세대 도달</td></tr>
+          <tr><td>YouTube</td><td>$0.10~$0.30 (조회)</td><td>$9~$18</td><td>—</td><td>조회수 기반 인지도 캠페인</td></tr>
+          <tr><td>Google Ads</td><td>$0.50~$10.00</td><td>$2~$5</td><td>$31~$116</td><td>검색 의도 기반 전환 최적화</td></tr>
+          <tr><td>네이버</td><td>업종별 상이</td><td>약 5,000원</td><td>—</td><td>국내 검색 시장 1위</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">2.2 인플루언서 마케팅 비용 체계</div>
+
+      <p>인플루언서 마케팅은 광고 콘텐츠의 진정성과 도달 범위를 동시에 확보할 수 있는 핵심 수단으로 자리매김했다. 국내 인플루언서 마케팅 시장 규모는 2020년 약 1~2조 원으로 추정되었으며, 이는 국내 지상파 TV 광고 시장(약 1.5조 원)과 유사한 수준이다.<span class="cite">[4]</span></p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">도표 2 — 모델 경력별 섭외 비용 구조</div>
+        <div class="chart-grid">
+          <div>
+            <canvas id="modelCostChart" height="220"></canvas>
+          </div>
+          <div>
+            <canvas id="influencerTypeChart" height="220"></canvas>
+          </div>
+        </div>
+        <div class="chart-caption">출처: 스포트라이트 플랫폼(2026.01), 아이보스 인플루언서 마케팅 가이드(2024)</div>
+      </div>
+
+      <p>인플루언서 광고비 산정 공식은 일반적으로 <strong>(팔로워 수 × 10원) + 콘텐츠 제작 비용</strong>으로 접근되나, 이는 참고 기준이며 실제 협상에서는 채널 특성, 참여율(Engagement Rate), 2차 활용 권리 등이 복합적으로 반영된다.<span class="cite">[5]</span></p>
+
+      <div class="table-label">표 2. 채널별·유형별 인플루언서 광고비 기준 (2025년)</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>규모 구분</th><th>팔로워 수</th><th>인스타그램</th><th>유튜브(영상)</th><th>블로그 포스팅</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>나노 인플루언서</td><td>1K~10K</td><td>10~50만원</td><td>30~80만원</td><td>5~20만원</td></tr>
+          <tr><td>마이크로</td><td>10K~100K</td><td>50~200만원</td><td>100~500만원</td><td>30~100만원</td></tr>
+          <tr><td>매크로</td><td>100K~1M</td><td>200~1,000만원</td><td>500~2,000만원</td><td>100~500만원</td></tr>
+          <tr><td>메가 인플루언서</td><td>1M+</td><td class="highlight">1,000만원~</td><td class="highlight">2,000만원~</td><td>500만원~</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">2.3 콘텐츠 마케팅 예산 구조 (기업 규모별)</div>
+
+      <p>콘텐츠 마케팅 예산은 기업 규모에 따라 크게 달라진다. 소규모 브랜드의 경우 월 100만원 내외의 예산으로도 운영이 가능하나, 효과적인 SNS 광고 배포 없이는 오디언스 도달이 극히 제한적이다.<span class="cite">[6]</span></p>
+
+      <div class="chart-wrap">
+        <div class="chart-title">도표 3 — 기업 규모별 SNS 마케팅 예산 구조</div>
+        <canvas id="budgetChart" height="240"></canvas>
+        <div class="chart-caption">출처: Ballast I&C 콘텐츠 마케팅 예산 가이드, 크몽 SNS 광고대행 거래데이터(2025)</div>
+      </div>
+
+      <div class="callout">
+        <strong>SNS 광고 예산 산정 원칙:</strong> 업계 표준으로는 전체 매출액의 2~20%를 광고 예산으로 설정하는 것이 권장된다. 예컨대 쿠팡은 연 매출 4조 4,000억 원 대비 1,548억 원(약 3.5%)을 광고비로 지출한 바 있다. 반면 B2B 기업 롯데케미칼은 0.2% 수준에 불과하다.<span class="cite">[3]</span>
+      </div>
+
+      <div class="table-label">표 3. SNS 광고대행 비용 구조 (크몽 거래데이터 기준)</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>서비스 유형</th><th>최저가</th><th>평균가</th><th>대규모</th><th>포함 서비스</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>기본 광고 운영</td><td>4만원~</td><td>20~50만원/월</td><td>—</td><td>광고 세팅, 예산 집행</td></tr>
+          <tr><td>종합 SNS 운영</td><td>35만원~</td><td>35~100만원/월</td><td>—</td><td>운영+소재 제작+리포트</td></tr>
+          <tr><td>대규모 캠페인</td><td>—</td><td>—</td><td class="highlight">500만원~</td><td>A/B테스트, 다채널, 분석</td></tr>
+          <tr><td>AI 콘텐츠 활용</td><td colspan="3">기존 대비 최대 95% 비용 절감 (LGU+ 사례)</td><td>생성형 AI 소재 자동화</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER III ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter III</div>
+    <div class="chapter-title">AI 광고 활용 부정 사례 분석</div>
+
+    <p>생성형 AI의 광고 활용이 확산되면서, AI가 지나치게 두드러지거나(AI 티가 강하거나), 소비자의 정서적 공감을 이끌어내지 못해 브랜드 이미지에 타격을 준 사례들이 다수 보고되고 있다. 아래 세 가지 사례는 학계와 업계에서 공통적으로 인용되는 대표적 부정 사례이다.</p>
+
+    <!-- 도표 4: 정성 비교 매트릭스 (수치 없음, 문헌 기반 분류) -->
+    <div class="chart-wrap" style="overflow-x:auto;">
+      <div class="chart-title">도표 4 — AI 광고 실패 유형 정성 비교 매트릭스</div>
+
+      <div style="background:#fff8f6; border-left:4px solid var(--accent); padding:12px 16px; margin-bottom:16px; font-family:var(--sans); font-size:13px; color:var(--ink-light);">
+        <strong>분류 기준 출처:</strong> 본 매트릭스의 4개 실패 차원은 다음 두 문헌의 분류 체계를 기반으로 연구자가 재구성하였다.<br>
+        ① <em>International Journal of Advertising</em>, Kim &amp; Lee (2024) — AI 에이전트 의인화와 소비자 반응의 4가지 부정적 경로(기술 신뢰, 감성 단절, 프라이버시·윤리 우려, 맥락 부적합)<br>
+        ② System1 CCO 존 에반스 발언, 요즘IT(2025.09.02) 재인용 — "AI가 인간의 창의성을 '대체'하려 할 때 vs. '향상'시킬 때" 소비자 반응 이분법<br>
+        <strong>판정 기준:</strong> ● 주요 실패 원인으로 복수 출처에서 명시적으로 지적됨&nbsp;|&nbsp;◑ 부분적·간접적 원인으로 언급됨&nbsp;|&nbsp;○ 해당 사례에서 경미하거나 보고되지 않음
+      </div>
+
+      <table class="data-table" style="text-align:center; min-width:700px;">
+        <thead>
+          <tr>
+            <th style="text-align:left; min-width:180px;">사례</th>
+            <th>기술적 미완성<br><span style="font-weight:400; font-size:11px;">언캐니밸리·오류·일관성</span></th>
+            <th>감성적 단절<br><span style="font-weight:400; font-size:11px;">진정성·헤리티지 훼손</span></th>
+            <th>윤리·투명성 문제<br><span style="font-weight:400; font-size:11px;">일자리·다양성·표기</span></th>
+            <th>전략적 미스매치<br><span style="font-weight:400; font-size:11px;">맥락 부적합·반복 실수</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:left; font-weight:600; font-size:13px;">구글 'Dear Sydney'<br><span style="font-weight:400; color:var(--ink-muted); font-size:11px;">2024 파리 올림픽 철회</span></td>
+            <td style="font-size:20px;" title="IJA 2024: 기술이 감정 표현에 부적합하다는 소비자 인식 보고">◑</td>
+            <td style="font-size:20px; color:var(--accent);" title="요즘IT 2025: '딸이 직접 써야 할 편지를 AI가 대신 쓴다' — 창의성 대체 논란, 방송 철회">●</td>
+            <td style="font-size:20px;" title="댓글창 비활성화로 소통 차단 — 부분적 투명성 문제">◑</td>
+            <td style="font-size:20px; color:var(--accent);" title="올림픽이라는 고감성 인간 도전 맥락에 AI 의존 메시지 배치 — aitimes.kr 2024.08 보도">●</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; font-weight:600; font-size:13px;">게스(GUESS) 'Vivian'<br><span style="font-weight:400; color:var(--ink-muted); font-size:11px;">2025.08 보그 AI 모델 논란</span></td>
+            <td style="font-size:20px;" title="'플러스 사이즈 구현 불가' 기술 한계 인정 — ZDNet Korea 2025.07.28">◑</td>
+            <td style="font-size:20px; color:var(--accent);" title="'실존하지 않는 사람과 비교당해야 하나' 틱톡 좋아요 67,000+ — 뉴시스 2025.08.01">●</td>
+            <td style="font-size:20px; color:var(--accent);" title="다양성 후퇴, 창작 생태계 일자리 위협, 소형 글씨 표기 문제 — ZDNet·Brand Brief 2025.08">●</td>
+            <td style="font-size:20px;" title="제작사가 비용 절감 목표를 공개적으로 실토하며 소비자 신뢰 자가 훼손">◑</td>
+          </tr>
+          <tr>
+            <td style="text-align:left; font-weight:600; font-size:13px;">코카콜라 AI 크리스마스<br><span style="font-weight:400; color:var(--ink-muted); font-size:11px;">2024 초도·2025 재집행</span></td>
+            <td style="font-size:20px;" title="트럭 크기·바퀴 수 불일치, 실사·애니메이션 혼재 — 한국경제 2024.11.20">◑</td>
+            <td style="font-size:20px; color:var(--accent);" title="30년 크리스마스 헤리티지 훼손, '영혼 없는 작업' — 니라지 아로라 교수 분석(경향신문 2025.11)">●</td>
+            <td style="font-size:20px; color:var(--accent);" title="창작자 일자리 대체를 자랑으로 포장 — 할리우드 리포터 '스크루지' 비판(경향신문 2025)">●</td>
+            <td style="font-size:20px; color:var(--accent);" title="2024년 실패를 학습하지 않고 2025년 동일 전략 반복 — mmm-online.com 2026.03">●</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="font-family:var(--sans); font-size:12px; color:var(--ink-muted); margin-top:12px; line-height:1.8;">
+        <strong>판정 범례:</strong> &nbsp;● 주요 실패 원인 (해당 사례 보도·학술 문헌에서 명시적으로 지적) &nbsp;|&nbsp; ◑ 부분적 원인 (간접 언급 또는 연구자 추론) &nbsp;|&nbsp; ○ 경미하거나 보고 없음<br>
+        <strong>분류 기준 재구성 근거:</strong> Kim &amp; Lee, <em>Int'l J. of Advertising</em> 44(8), 2024 · System1 (요즘IT, 2025.09 재인용) · 각 사례 개별 출처 (각주 [7]~[16] 참조)
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">3.1 구글 제미나이 "Dear Sydney" — 파리 올림픽 광고 철회 (2024)</div>
+
+      <!-- CASE CARD 1 -->
+      <div class="case-card">
+        <div class="case-num">CASE 01</div>
+        <div class="case-header">
+          <div class="case-brand">Google Gemini — "Dear Sydney" 올림픽 광고 (미국 방송 철회)</div>
+          <div class="case-date">2024년 7월 파리 올림픽 중계 방영 → 2024년 8월 2일 전면 철회</div>
+          <div style="margin-top:10px;">
+            <span class="tag red">인간 창의성 대체 논란</span>
+            <span class="tag">진정성 상실</span>
+            <span class="tag blue">교육적 역효과 비판</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>구글은 2024년 파리 올림픽 기간, 자사 AI 챗봇 제미나이(Gemini)를 홍보하는 'Dear Sydney' 광고를 미국 올림픽 중계 방송에서 집행했다. 이 광고는 미국 육상 스타 시드니 맥러플린-레브론(Sydney McLaughlin-Levrone)의 팬인 어린 딸을 둔 아버지가 제미나이에게 "내 딸이 시드니에게 얼마나 영감을 주는지 알려주는 편지를 쓰게 도와줘"라고 명령하는 장면을 담았다.<span class="cite">[7]</span></p>
+
+          <div class="subsection-title">▪ 사용 방식</div>
+          <p>제미나이 챗봇의 글쓰기 보조 기능을 시연하는 형식으로, 딸 대신 AI가 팬레터 초안을 작성해 주는 장면을 감동적 스토리 형식으로 포장했다. 구글 인하우스 크리에이티브팀이 직접 제작했으며, 팀 USA의 공식 AI 검색 파트너 계약에 맞춰 올림픽 중계 방송에 적극 집행했다.</p>
+
+          <div class="subsection-title">▪ 소비자 반응 및 비판</div>
+          <p>광고 공개 직후 X, 레딧, 언론에서 강도 높은 비판이 쏟아졌다. 워싱턴포스트 칼럼니스트 알렉산드라 페트리는 "이 광고를 볼 때마다 TV를 부수고 싶은 충동을 느낀다"고 직접적으로 비판했다.<span class="cite">[8]</span> 저널리스트 윌 레이치는 "딸이 직접 글을 쓰도록 하는 대신 AI에게 명령을 내리는 아빠를 볼 때마다 내 영혼의 작은 조각이 떨어져나간다"고 표현했다.<span class="cite">[9]</span></p>
+          <p>시러큐스 대학 미디어학 교수 셸리 파머는 "이런 의사소통 방식이 확산되면 인간이 독창적으로 사고하는 사례가 줄어들어 언어와 문화의 풍부함이 사라질 것"이라고 우려했다.<span class="cite">[9]</span> 논란이 확산되자 구글은 공식 유튜브 채널에서 해당 광고의 댓글창을 비활성화했고, 8월 2일 올림픽 방송 중계에서 해당 광고를 전면 철회했다.</p>
+
+          <div class="case-grid">
+            <div class="case-metric bad">
+              <div class="case-metric-label">핵심 비판 유형</div>
+              <div class="case-metric-value">인간 창의성 AI 대체 조장</div>
+            </div>
+            <div class="case-metric bad">
+              <div class="case-metric-label">결과</div>
+              <div class="case-metric-value">올림픽 방송 전면 철회</div>
+            </div>
+            <div class="case-metric neutral">
+              <div class="case-metric-label">댓글창</div>
+              <div class="case-metric-value">유튜브 댓글 비활성화</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 실패 요인 분석</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label emotional">감성적 요인</div>
+              팬레터는 보내는 사람의 진심과 고유한 언어가 핵심인 고감성 행위다. 이를 AI에 아웃소싱하는 모습이 "편의주의"로 인식되어 감정적 진정성 훼손
+            </div>
+            <div class="fail-item">
+              <div class="fail-label strategic">전략적 요인</div>
+              올림픽이라는 인간 도전과 감동의 결정적 순간에 "AI가 대신 써준다"는 메시지를 배치한 맥락 판단 오류. 광고 테스트 단계에서 대중 반응을 충분히 검증하지 못함
+            </div>
+            <div class="fail-item">
+              <div class="fail-label ethical">교육적·윤리적 요인</div>
+              어린이의 글쓰기 능력과 창의적 자기표현 발달을 저해한다는 비판. AI가 자녀의 진심 표현 기회를 박탈한다는 부모 세대의 거부감
+            </div>
+            <div class="fail-item">
+              <div class="fail-label tech">위기 대응 실패</div>
+              논란이 커지자 댓글창을 차단하는 방어적 대응이 오히려 역풍. 구글의 해명("AI는 창의성을 향상시키는 도구")이 광고 내용과 정면 충돌하는 모순 발생
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">3.2 게스(GUESS) × 보그 미국판 AI 모델 '비비안' 광고 논란 (2025.08)</div>
+
+      <div class="case-card">
+        <div class="case-num">CASE 02</div>
+        <div class="case-header">
+          <div class="case-brand">GUESS — Vogue USA 2025년 8월호 AI 모델 '비비안(Vivian)' 캠페인</div>
+          <div class="case-date">2025년 7~8월 보그 미국판 게재 · 전 세계 SNS 논란 확산</div>
+          <div style="margin-top:10px;">
+            <span class="tag red">AI 모델 불매운동</span>
+            <span class="tag">다양성 훼손</span>
+            <span class="tag blue">일자리 위협 논란</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>미국 의류 브랜드 게스(Guess)는 패션 잡지 보그(Vogue) 미국판 2025년 8월호 광고에 AI 기반 마케팅 에이전시 '세라핀 발로라(Seraphine Valora)'가 제작한 AI 가상 모델을 기용했다. 금발 백인 여성 모델 '비비안(Vivian)'이 줄무늬 원피스와 가방을 들고 포즈를 취하는 이 광고는, 하단에 작은 글씨로 'AI 생성 모델'이라 표기되었다. 광고는 게스 공동 창업자 폴 마르시아노가 수십 개의 AI 시안 중 직접 선택한 결과물이다.<span class="cite">[10]</span></p>
+
+          <div class="subsection-title">▪ 사용 방식</div>
+          <p>실제 모델이 게스 의상을 입고 촬영에 참여한 데이터를 기반으로, AI가 모델의 외모를 가상으로 생성하는 하이브리드 방식을 채택했다. 세라핀 발로라의 홈페이지에는 AI 모델의 장점으로 "비싼 촬영 장비, 메이크업 아티스트, 장소 대여, 사진작가, 출장비, 모델 고용이 필요 없다"고 명시되어 있었다.<span class="cite">[11]</span></p>
+
+          <div class="subsection-title">▪ 소비자 반응 및 비판</div>
+          <p>CNN, ABC뉴스, BBC, ZDNet 등 주요 외신들이 일제히 비판적으로 보도했다. 틱톡에서 "이젠 실존하지도 않는 사람과 비교해야 하냐"는 댓글에 <strong>6만 7,000개</strong>가 넘는 '좋아요'가 달렸다.<span class="cite">[10]</span> 레딧 등 해외 커뮤니티와 SNS에서는 보그와 게스에 대한 불매 운동이 제안됐고, 보그 구독을 해지하는 독자들도 속출했다.<span class="cite">[12]</span></p>
+
+          <blockquote>
+            "게으르고 값싼 방식처럼 느껴진다."
+            <cite>— 모델 펠리시티 헤이워드(Felicity Hayward), ZDNet Korea 재인용 (2025.07.28)</cite>
+          </blockquote>
+
+          <p>또한 세라핀 발로라 측이 "다양한 인종의 모델 이미지는 대중의 관심을 끌지 못해 사업상 어쩔 수 없었다"며 백인 중심 AI 모델을 채택했다고 실토하고, "플러스 사이즈 모델은 기술이 부족해 아직 만들지 못한다"고 발언하면서 논란이 가속화됐다.<span class="cite">[11]</span></p>
+
+          <div class="case-grid">
+            <div class="case-metric bad">
+              <div class="case-metric-label">SNS 반응</div>
+              <div class="case-metric-value">틱톡 좋아요 67,000+ 항의</div>
+            </div>
+            <div class="case-metric bad">
+              <div class="case-metric-label">소비자 행동</div>
+              <div class="case-metric-value">보그 구독 취소 확산</div>
+            </div>
+            <div class="case-metric neutral">
+              <div class="case-metric-label">업계 범위</div>
+              <div class="case-metric-value">패션 생태계 전체 위기</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 실패 요인 분석 및 스튜디오캉과의 연관성</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label ethical">윤리·다양성 요인</div>
+              패션 업계가 수년간 쌓아온 다양성·포용성 가치(체형, 인종, 연령)를 AI가 백인 중심 미적 기준으로 단일화함. 미의 다양성 후퇴라는 구조적 비판
+            </div>
+            <div class="fail-item">
+              <div class="fail-label strategic">전략적 요인</div>
+              비용 절감이 목표임을 광고 제작사 스스로 노출함으로써 "소비자를 위한 혁신"이 아닌 "기업 이익을 위한 착취"로 프레이밍됨
+            </div>
+            <div class="fail-item">
+              <div class="fail-label emotional">정체성·심리적 요인</div>
+              실존하지 않는 완벽한 AI 모델과 자신을 비교하도록 강요받는 소비자의 심리적 부담감. 소비자 정신 건강 악영향 우려 제기
+            </div>
+            <div class="fail-item">
+              <div class="fail-label tech">스튜디오캉 시사점</div>
+              게스 사례는 스튜디오캉이 직접 운영하는 AI 버츄얼 모델 에이전시가 맞닥뜨릴 수 있는 가장 직접적인 반감 패턴을 보여줌. 다양성 확보 및 투명한 표기 전략이 필수
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight">
+        <p><strong>언캐니밸리(Uncanny Valley) 이론과 AI 광고:</strong> 1970년 마사히로 모리(Mori Masahiro)가 제시한 '불쾌한 골짜기' 이론은 AI 광고에도 그대로 적용된다. International Journal of Advertising(2024)에 게재된 연구에 따르면, 지나치게 의인화된 AI 에이전트(챗봇)를 접한 소비자들은 해당 AI가 개인 데이터를 인간적 자율의지로 남용할 것을 우려하는 '<strong>마음의 언캐니밸리(Uncanny Valley of Mind)</strong>' 현상을 경험했다.<span class="cite">[13]</span> 소비자의 71%는 AI 생성 이미지나 콘텐츠의 신뢰성에 우려를 표했으며, 83%는 AI 생성 콘텐츠에 법적 표시 의무가 필요하다고 응답했다.<span class="cite">[14]</span></p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">3.3 코카콜라 2025 AI 크리스마스 광고 — 2년 연속 역풍</div>
+
+      <div class="case-card">
+        <div class="case-num">CASE 03</div>
+        <div class="case-header">
+          <div class="case-brand">Coca-Cola — "Holidays Are Coming" 2025 AI 리메이크 (2년 연속 반복)</div>
+          <div class="case-date">2024년 11월 최초 공개 → 2025년 11월 재집행 → 비판 더욱 증폭</div>
+          <div style="margin-top:10px;">
+            <span class="tag red">2년 연속 소비자 반감</span>
+            <span class="tag">헤리티지 훼손</span>
+            <span class="tag blue">창작자 일자리 논란</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>코카콜라는 1995년부터 30년 가까이 이어온 크리스마스 광고 시리즈 "Holidays Are Coming"을 2024년에 처음으로 100% 생성형 AI로 재제작했다. 3개 AI 스튜디오(시크릿 레벨, 실버사이드AI, 와일드카드)가 제작했으며, 실제 배우·감독·아티스트는 전혀 참여하지 않았다.<span class="cite">[15]</span> 2024년 혹평에도 불구하고 2025년 11월에 동일 컨셉을 재집행했으며, 이번에는 OpenAI Sora, Google Veo 3, Luma AI를 활용해 5명의 AI 전문가팀이 70,000개 영상 클립을 30일에 걸쳐 정제했다.<span class="cite">[16]</span></p>
+
+          <div class="subsection-title">▪ 2025년 재집행과 더 강한 반발</div>
+          <p>2024년 혹평에도 코카콜라가 2025년에 같은 시도를 반복하자 비판은 더욱 강해졌다. SNS에서는 "영혼 없는 작업", "크리스마스 분위기를 전혀 느낄 수 없다", "제로 콜라는 영혼이 없다는 뜻이냐", "광고 비용을 줄인 거라면 콜라값도 내려달라" 등의 반응이 쏟아졌다.<span class="cite">[15]</span> 경향신문에 따르면, 코카콜라는 <strong>제작 기간을 기존 1년에서 1개월로 단축</strong>했지만, 이 사실 자체가 비판의 빌미가 됐다.<span class="cite">[16]</span></p>
+          <p>할리우드 리포터는 "세계 최대 기업이 노동자의 일자리를 빼앗아 놓고 이를 자랑스레 떠벌리는 모습은 마치 스크루지를 연상시킨다"고 코카콜라를 비판했다.<span class="cite">[16]</span> 위스콘신-매디슨 대학 마케팅 연구위원장 니라지 아로라 교수는 "많은 코카콜라 소비자들에게 크리스마스는 특별한 의미인데, AI 기술이 방해 요소로 작용했다"고 분석했다.<span class="cite">[15]</span></p>
+
+          <div class="case-grid">
+            <div class="case-metric bad">
+              <div class="case-metric-label">핵심 비판</div>
+              <div class="case-metric-value">30년 헤리티지 감성 파괴</div>
+            </div>
+            <div class="case-metric neutral">
+              <div class="case-metric-label">제작 효율</div>
+              <div class="case-metric-value">기간 1/10 단축 (1년→1개월)</div>
+            </div>
+            <div class="case-metric bad">
+              <div class="case-metric-label">전략 실수</div>
+              <div class="case-metric-value">혹평에도 2년 연속 재집행</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 실패 요인 분석</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label tech">기술적 요인</div>
+              트럭 크기·바퀴 개수가 장면마다 다르고, 실사와 애니메이션 스타일 사이를 일관성 없이 오가는 물리적 오류 다수. 2025년에는 품질이 개선됐으나 반감은 오히려 증가
+            </div>
+            <div class="fail-item">
+              <div class="fail-label emotional">감성적 요인</div>
+              크리스마스라는 고감성 시즌에 AI가 인간의 향수와 따뜻함을 대체하는 시도는 브랜드가 소비자와 맺은 30년간의 감정적 계약을 일방 파기하는 행위로 인식됨
+            </div>
+            <div class="fail-item">
+              <div class="fail-label ethical">윤리적 요인</div>
+              전통 애니메이션 제작자, 배우, 스태프의 일자리를 AI로 대체하는 비용 절감 시도를 공개적으로 자랑하는 태도가 창작 생태계 전반의 반감 유발
+            </div>
+            <div class="fail-item">
+              <div class="fail-label strategic">전략적 요인</div>
+              2024년 실패를 학습하지 않고 2025년에 동일 컨셉 반복한 것이 소비자에게 "우리는 돈만 생각한다"는 메시지로 해석됨. AI 광고의 가장 나쁜 학습 사례
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-case comparison chart -->
+    <div class="chart-wrap" style="overflow-x:auto;">
+      <div class="chart-title">도표 5 — AI 광고 부정 사례: 실제 보고된 결과 비교</div>
+
+      <div style="background:#fff6f5; border-left:4px solid var(--accent); padding:12px 16px; margin-bottom:14px; font-family:var(--sans); font-size:13px; color:var(--ink-light);">
+        <strong>작성 방침:</strong> 본 표는 각 사례별로 언론 보도·학술 문헌·공식 성명에서 <em>실제로 확인된</em> 사실과 결과만을 기재한다. 해석·판단이 필요한 항목은 판정 근거 출처를 명시하였다.
+      </div>
+
+      <table class="data-table" style="min-width:680px;">
+        <thead>
+          <tr>
+            <th style="min-width:160px;">항목</th>
+            <th>구글 'Dear Sydney'<br><span style="font-weight:400;font-size:11px;">2024 파리 올림픽</span></th>
+            <th>게스 AI 모델 '비비안'<br><span style="font-weight:400;font-size:11px;">2025.07 보그 USA</span></th>
+            <th>코카콜라 AI 크리스마스<br><span style="font-weight:400;font-size:11px;">2024~2025 재집행</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">공식 결과</td>
+            <td>올림픽 방송 <strong>전면 철회</strong><span class="cite">[8]</span></td>
+            <td>보그·게스 불매운동 제안, 구독 취소 속출<span class="cite">[12]</span></td>
+            <td>2년 연속 소비자 혹평, 철회 없이 유지<span class="cite">[15][16]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">소비자 반응 수치</td>
+            <td>댓글창 비활성화로 정량 수집 차단<span class="cite">[8]</span></td>
+            <td>틱톡 항의 댓글 좋아요 <strong>67,000+</strong><span class="cite">[10]</span></td>
+            <td>"영혼 없다" 등 SNS 혹평 다수 — 정량 공개 없음<span class="cite">[15]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">기업 공식 해명</td>
+            <td>"AI는 인간 창의성 대체 아닌 보조" 성명 발표 후 광고 중단<span class="cite">[9]</span></td>
+            <td>"논란 과장됐다" — 제작사 반박, 게스 측 무응답<span class="cite">[10]</span></td>
+            <td>"인간·AI 협력 작품" 강조, 대체 광고('Holiday Road') 병행<span class="cite">[15]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">전문가 분석</td>
+            <td>시러큐스대 셸리 파머 교수: "창의적 사고 의존 위축 우려"<span class="cite">[9]</span></td>
+            <td>전직 모델 펠리시티 헤이워드: "게으르고 값싼 방식"<span class="cite">[11]</span></td>
+            <td>위스콘신-매디슨대 니라지 아로라 교수: "AI가 크리스마스 감성에 방해 요소로 작용"<span class="cite">[15]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">제작비·효율 변화</td>
+            <td>데이터 미공개</td>
+            <td>비용 절감이 제작 목표임을 제작사 스스로 공개<span class="cite">[11]</span></td>
+            <td>제작 기간 1년→<strong>1개월</strong>로 단축 (CMO 마놀로 아로요 발언)<span class="cite">[16]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">핵심 실패 유형<br><small style="font-weight:400;">(IJA 2024 분류 기반<span class="cite">[13]</span>)</small></td>
+            <td>감성적 단절<br>전략적 맥락 부적합</td>
+            <td>윤리·다양성 훼손<br>감성적 단절</td>
+            <td>감성적 단절<br>전략적 반복 실패</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-family:var(--sans); font-size:12px; color:var(--ink-muted); margin-top:10px;">
+        각 항목의 판정 근거: 각주 [8]~[16] 및 Kim &amp; Lee, <em>Int'l J. of Advertising</em> 44(8), 2024 실패 경로 분류 체계를 연구자가 재적용
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <p><strong>종합 실패 패턴:</strong> 세 사례에서 공통적으로 나타난 AI 광고 실패 패턴은 다음과 같다.</p>
+      <p>① <strong>기술 과시 우선주의</strong> — 소비자 경험보다 "AI로 만들었다"는 사실 자체를 마케팅 포인트로 삼음</p>
+      <p>② <strong>감성적 진정성 결여</strong> — AI 기술이 브랜드의 핵심 정서적 자산(헤리티지, 신뢰)을 훼손</p>
+      <p>③ <strong>SNS 리스크 미산정</strong> — AI 오류나 미완성 결과물이 SNS를 통해 빠르게 확산·조롱될 가능성을 과소평가</p>
+      <p>④ <strong>소비자 수용도 격차</strong> — 기술 발전 속도와 소비자의 AI 수용도 사이의 간극을 무시</p>
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER IV (NEW: 긍정 사례) ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter IV</div>
+    <div class="chapter-title">AI 광고 활용 긍정 사례 분석</div>
+
+    <p>앞선 부정 사례와 대조적으로, AI를 인간의 창의성을 '보완'하는 도구로 활용하고 소비자 참여와 브랜드 가치를 중심에 둔 캠페인들은 업계로부터 높은 평가와 실질적 성과를 거두고 있다. 영국 마케팅 리서치 회사 System1의 CCO 존 에반스는 "AI를 논하는 광고는 다른 광고에 비해 두 배나 더 부정적인 감정을 유발한다"면서도, "AI가 인간의 창의성을 향상시키거나 기존에 불가능했던 새로운 표현을 가능하게 할 때는 긍정적인 반응이 나타난다"고 분석했다.<span class="cite">[A1]</span></p>
+
+    <div class="chart-wrap" style="overflow-x:auto;">
+      <div class="chart-title">도표 8 — AI 광고 긍정 사례: 실제 보고된 성과 및 성공 근거 비교</div>
+
+      <div style="background:#e8f5e9; border-left:4px solid #1a7a6e; padding:12px 16px; margin-bottom:14px; font-family:var(--sans); font-size:13px; color:var(--ink-light);">
+        <strong>작성 방침:</strong> 본 표는 각 사례별로 언론 보도, 수상 기록, 공식 발언에서 <em>실제로 확인된</em> 성과와 성공 근거만 기재한다. 주관적 평가 항목은 출처를 명시하였다.
+      </div>
+
+      <table class="data-table" style="min-width:680px;">
+        <thead>
+          <tr>
+            <th style="min-width:160px;">항목</th>
+            <th>캐드버리 × 샤룩칸<br><span style="font-weight:400;font-size:11px;">'My Ad' (2022~2023)</span></th>
+            <th>카스 '축카스'<br><span style="font-weight:400;font-size:11px;">(2024 신년 캠페인)</span></th>
+            <th>구글 Veo3 칠면조 광고<br><span style="font-weight:400;font-size:11px;">(2025.10 추수감사절)</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">공식 수상·인정</td>
+            <td>칸 라이언즈 2022 <strong>티타늄 라이언·크리에이티브 데이터 골드</strong><br>칸 라이언즈 2023 <strong>크리에이티브 이펙트니스 그랑프리</strong><span class="cite">[A2]</span></td>
+            <td>공식 광고제 수상 보고 없음 — 바이럴 성과 중심<span class="cite">[A1][A4]</span></td>
+            <td>공식 수상 보고 없음 — 업계 전문 매체 호평<span class="cite">[A5]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">정량적 성과</td>
+            <td>인도 내 약 <strong>13만 개</strong> 소상공인 매장 대상 개인화 광고 생성<span class="cite">[A2]</span></td>
+            <td>소비자 자발적 SNS 공유 확산 — 구체적 수치 미공개<span class="cite">[A4]</span></td>
+            <td>정량 성과 수치 미공개<span class="cite">[A5]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">전문가·업계 평가</td>
+            <td>칸 라이언즈 랩업 리포트: "브랜드 관대함이 강력한 비즈니스 성과로 이어진 사례"<span class="cite">[A3]</span></td>
+            <td>"AI 사용 투명 공개가 신뢰 확보의 성공 요인" (요즘IT 2025.09)<span class="cite">[A1]</span></td>
+            <td>구글 크리에이티브랩 로버트 웡 부사장: "소비자는 AI 여부가 아닌 스토리에 반응한다"<span class="cite">[A5]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">AI 역할 방식</td>
+            <td>기존에 불가능했던 규모(13만 개 개인화)를 AI가 구현 — 인간이 불가능한 영역 보완<span class="cite">[A2]</span></td>
+            <td>소비자가 AI를 직접 조작해 개인화 콘텐츠 생성 — 수동 수신자 → 능동 참여자<span class="cite">[A4]</span></td>
+            <td>인물 대신 동물 캐스팅으로 언캐니밸리 회피, AI 강조 없이 스토리 중심<span class="cite">[A5]</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">부정 사례와의 차이<br><small style="font-weight:400;">(System1 이분법 적용<span class="cite">[A1]</span>)</small></td>
+            <td>AI가 인간 창의성을 <strong>'대체'가 아닌 '확장'</strong><br>사회적 가치(소상공인 지원)와 기술 결합</td>
+            <td>AI가 인간 창의성을 <strong>'대체'가 아닌 '도구'</strong><br>소비자 참여 중심 설계</td>
+            <td>AI가 인간 창의성을 <strong>'대체'가 아닌 '수단'</strong><br>"AI로 만들었다"를 전혀 강조 안 함</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-family:var(--sans); font-size:12px; color:var(--ink-muted); margin-top:10px;">
+        성공 요인 분류 기준: System1 CCO 존 에반스의 AI 광고 이분법("대체 vs. 향상") (요즘IT 2025.09.02 재인용<span class="cite">[A1]</span>) · 정량 데이터는 출처에서 명시된 수치만 기재
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.1 캐드버리 × 샤룩칸 'My Ad' 캠페인 — 칸 라이언즈 그랑프리 (2022~2023)</div>
+
+      <div class="case-card" style="border-color:#1a7a6e;">
+        <div class="case-num" style="background:#1a7a6e;">CASE ✓ 01</div>
+        <div class="case-header" style="background:#e8f5e9;">
+          <div class="case-brand">Cadbury (Mondelez) × Shah Rukh Khan — "My Ad" (India)</div>
+          <div class="case-date">2022년 출시 → 2023년 칸 라이언즈 크리에이티브 이펙트니스 그랑프리 수상</div>
+          <div style="margin-top:10px;">
+            <span class="tag teal">칸 라이언즈 그랑프리</span>
+            <span class="tag">소상공인 연대</span>
+            <span class="tag blue">AI 맞춤화 광고</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>인도 제과 브랜드 캐드버리(Mondelez 그룹)는 COVID-19 팬데믹 이후 어려움을 겪고 있는 인도 내 소상공인들을 지원하기 위해, 발리우드 슈퍼스타 샤룩칸(Shah Rukh Khan)의 AI 기술을 활용한 맞춤형 광고 플랫폼 'My Ad'를 제작했다. 광고 제작은 오길비 뭄바이(Ogilvy Mumbai)가 담당했다.<span class="cite">[A2]</span></p>
+
+          <div class="subsection-title">▪ 사용 방식 (How AI Was Used)</div>
+          <p>캐드버리는 AI 기술로 샤룩칸의 얼굴 표정·목소리·립싱크를 동적으로 생성하여, 인도 전역 <strong>약 13만여 곳</strong>의 지역 소상공인 상점 이름을 각각 언급하는 개인화 광고 영상을 제작했다. 이 광고는 Facebook, YouTube 플랫폼에서 사용자의 위치 데이터를 기반으로, 가장 가까운 지역 매장을 소개하도록 개인화 설정되어 노출되었다.<span class="cite">[A2]</span> 소상공인들은 별도 비용 없이 자신의 가게 이름이 담긴 샤룩칸 광고를 자신의 SNS 채널에도 활용할 수 있었다.</p>
+
+          <div class="subsection-title">▪ 성과 및 소비자 반응</div>
+          <p>이 캠페인은 2022년 칸 라이언즈에서 <strong>티타늄 라이언, 크리에이티브 데이터 골드</strong>를 수상한 데 이어, 2023년에는 가장 까다로운 비즈니스 성과 부문인 <strong>크리에이티브 이펙트니스 라이언즈 그랑프리</strong>를 수상했다.<span class="cite">[A2]</span> 칸 라이언즈 랩업 리포트는 이 캠페인에 대해 "캐드버리의 관대함이라는 브랜드 스토리가 강력한 비즈니스 성과를 가져왔다"고 평가했다.<span class="cite">[A3]</span></p>
+
+          <div class="case-grid">
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">수상</div>
+              <div class="case-metric-value">칸 라이언즈 그랑프리 (2023)</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">개인화 광고 수</div>
+              <div class="case-metric-value">약 13만 개 맞춤 광고</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">핵심 가치</div>
+              <div class="case-metric-value">소상공인 지원 + AI 효율</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 성공 요인 분석</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">전략적 요인</div>
+              AI를 기술 과시 목적이 아닌 <em>소상공인 지원</em>이라는 명확한 사회적 가치 실현 도구로 활용. 브랜드의 기존 "관대함" 포지셔닝과 완벽하게 정렬
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">기술적 요인</div>
+              AI가 유명인 얼굴·음성을 생성하는 과정을 투명하게 공개. 소비자들은 AI 기술이 <em>실제 문제(소상공인 노출 기회 부족)</em>를 해결한다는 것을 명확히 이해
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">감성적 요인</div>
+              팬데믹 이후 지역 공동체 회복이라는 시대적 감성과 공명. 소상공인과 소비자 모두가 "자신의 이야기"를 담은 광고에 정서적 몰입
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">확장성</div>
+              한 명의 셀러브리티와 AI가 13만 개의 개인화 광고를 생성하는 구조는 기존 광고 패러다임으로는 불가능한 규모. AI의 고유한 강점을 창의적으로 활용한 모범 사례
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.2 카스(OB) '축카스' AI 보이스 인터랙티브 캠페인 (2024)</div>
+
+      <div class="case-card" style="border-color:#1a7a6e;">
+        <div class="case-num" style="background:#1a7a6e;">CASE ✓ 02</div>
+        <div class="case-header" style="background:#e8f5e9;">
+          <div class="case-brand">카스(Cass, OB맥주) — '축카스' AI 보이스 참여형 캠페인</div>
+          <div class="case-date">2024년 1월 신년 캠페인 · 국내 AI 광고 성공 사례</div>
+          <div style="margin-top:10px;">
+            <span class="tag teal">소비자 직접 참여</span>
+            <span class="tag">AI 투명성 공개</span>
+            <span class="tag blue">국내 성공 사례</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>맥주 브랜드 카스(OB맥주)는 2024년 새해 첫 광고 캠페인으로 소비자 직접 참여형 AI 캠페인 '축카스'를 진행했다. '축카스'는 '축하'와 '카스'가 합쳐진 신조어로, 소비자가 직접 AI를 통해 개인화된 영상 메시지를 제작하고 공유할 수 있는 인터랙티브 형태로 설계되었다.<span class="cite">[A1]</span></p>
+
+          <div class="subsection-title">▪ 사용 방식 (How AI Was Used)</div>
+          <p>카스 공식 홈페이지에서 소비자가 축하할 사람의 이름과 문구를 입력하면, 가수 비비(BIBI)의 <strong>AI 보이스</strong>로 맞춤형 축하 메시지를 읽어주는 영상이 자동 생성된다. 파티, 졸업, 이사, 공채 등 4가지 템플릿 중 원하는 것을 선택할 수 있으며, 완성된 영상은 다운로드하거나 SNS에 직접 공유할 수 있도록 구성되었다. 핵심은 AI 기술 사용 여부를 처음부터 명시적으로 공개했다는 점이다.<span class="cite">[A4]</span></p>
+
+          <div class="subsection-title">▪ 성과 및 소비자 반응</div>
+          <p>이 캠페인의 성공 요인은 <strong>AI 사용에 대한 투명한 공개</strong>였다. 솔직하게 AI 활용 과정을 공개함으로써 소비자들의 신뢰를 얻었으며, AI를 소비자가 직접 체험하는 재미있는 경험으로 전환하는 데 성공했다.<span class="cite">[A1]</span> 소비자들은 자신이 만든 AI 메시지 영상을 SNS에 자발적으로 공유하면서 캠페인이 자연스럽게 바이럴되었다.</p>
+
+          <div class="case-grid">
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">핵심 전략</div>
+              <div class="case-metric-value">소비자 직접 참여 + AI 공개</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">확산 방식</div>
+              <div class="case-metric-value">소비자 자발적 SNS 공유</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">차별점</div>
+              <div class="case-metric-value">AI가 "나의 이야기" 생성</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 성공 요인 분석</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">투명성 전략</div>
+              AI 사용을 숨기지 않고 캠페인의 핵심 소구점으로 활용. "AI로 만든 메시지"라는 사실이 오히려 신기함과 체험 욕구를 자극하는 차별화 포인트로 작용
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">참여 설계</div>
+              소비자가 AI의 수동적 수신자가 아닌 능동적 창작 참여자로 포지셔닝. "AI가 내 이름을 불러준다"는 개인화 경험이 감성적 연결 확보
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">활용 맥락 적절성</div>
+              신년 축하라는 시의성 높은 맥락에서 AI 보이스 메시지가 자연스럽게 받아들여짐. 코카콜라 크리스마스 사례와 달리 새로운 경험으로 제안, 기존 것의 AI 대체가 아님
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">스튜디오캉 시사점</div>
+              AI 모델 활용도 이처럼 소비자가 직접 참여하거나 개인화할 수 있는 인터랙티브 캠페인 형태로 발전할 경우 반감 대신 참여를 이끌어낼 수 있음
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.3 구글 Veo3 'Thanksgiving Turkey' AI TV 광고 (2025.10)</div>
+
+      <div class="case-card" style="border-color:#1a7a6e;">
+        <div class="case-num" style="background:#1a7a6e;">CASE ✓ 03</div>
+        <div class="case-header" style="background:#e8f5e9;">
+          <div class="case-brand">Google — Veo3 AI 생성 추수감사절 TV 광고</div>
+          <div class="case-date">2025년 10월 31일 공개 · 구글 최초 AI 생성 TV 광고</div>
+          <div style="margin-top:10px;">
+            <span class="tag teal">언캐니밸리 회피 전략</span>
+            <span class="tag">스토리 우선</span>
+            <span class="tag blue">2025 최신 성공</span>
+          </div>
+        </div>
+        <div class="case-body">
+          <p>구글은 2025년 10월 31일 자사 영상 생성 AI 모델 Veo3로 제작한 최초의 AI TV 광고를 공개했다. 이 광고는 추수감사절을 맞아 구글의 'AI 검색' 기능을 활용해 도망치는 칠면조의 이야기를 담고 있다. 광고 제작은 구글 크리에이티브랩(Google Creative Lab)이 직접 담당했다.<span class="cite">[A5]</span></p>
+
+          <div class="subsection-title">▪ 사용 방식 (How AI Was Used)</div>
+          <p>Veo3 텍스트-투-비디오 모델로 전체 광고 영상을 생성했다. 이 광고의 가장 핵심적인 전략적 판단은 <strong>인간 캐릭터 대신 칠면조를 주인공으로 선택</strong>한 것이었다. 구글 크리에이티브랩의 로버트 웡(Robert Wong) 부사장은 "언캐니밸리 문제를 회피하기 위해 인물 대신 칠면조를 캐스팅했다"고 직접 밝혔다.<span class="cite">[A5]</span> 또한 이 광고는 AI로 만들었다는 사실을 <em>전혀 강조하지 않고</em>, 자연스러운 스토리텔링에 집중했다.</p>
+
+          <div class="subsection-title">▪ 성과 및 소비자 반응</div>
+          <p>광고 공개 후 업계와 소비자 모두에게 호평을 받았다. 로버트 웡 부사장은 "마케터들이 때로는 AI에 취해 있는 듯하다"며 "하지만 소비자들은 광고가 AI로 만들어졌는지 신경 쓰지 않는다"는 핵심 인사이트를 공유했다.<span class="cite">[A5]</span> 이는 앞서 살펴본 구글 'Dear Sydney' 광고 실패(2024)에서 얻은 교훈을 정확히 반영한 전략적 반전이다.</p>
+
+          <div class="case-grid">
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">핵심 전략</div>
+              <div class="case-metric-value">언캐니밸리 우회 + 스토리 집중</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">AI 강조 여부</div>
+              <div class="case-metric-value">전혀 강조 안 함 (역설적 성공)</div>
+            </div>
+            <div class="case-metric" style="border-left-color:#1a7a6e;">
+              <div class="case-metric-label">학습 기반</div>
+              <div class="case-metric-value">2024 Dear Sydney 실패 반면교사</div>
+            </div>
+          </div>
+
+          <div class="subsection-title">▪ 성공 요인 분석</div>
+          <div class="fail-analysis">
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">기술 전략</div>
+              인물 대신 동물(칠면조) 캐스팅으로 언캐니밸리 리스크 원천 차단. AI 영상 생성 기술의 한계를 창의적 선택으로 전환하는 역발상
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">메시지 전략</div>
+              "AI로 만들었다"는 사실을 마케팅 포인트로 삼지 않고 제품 기능(AI 검색)을 자연스러운 스토리로 전달. 도구가 아닌 이야기 중심의 커뮤니케이션
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">학습 능력</div>
+              구글이 2024년 'Dear Sydney' 철회 사태에서 교훈을 얻어 1년 만에 전략을 완전히 수정한 것은 AI 광고 산업 전체의 진화 속도를 보여주는 상징적 사례
+            </div>
+            <div class="fail-item">
+              <div class="fail-label teal" style="color:#1a7a6e;">스튜디오캉 시사점</div>
+              AI 버츄얼 모델도 "AI 모델입니다"를 전면에 내세우기보다, 자연스러운 브랜드 스토리 안에 녹이는 방식이 소비자 수용도를 높이는 핵심 전략
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 긍정 vs 부정 비교 종합 -->
+    <div class="highlight-box" style="background:#1a2e1a; margin-top:32px;">
+      <p><strong>긍정·부정 사례 비교 종합 인사이트:</strong></p>
+      <p>① <strong>성공 사례의 공통점</strong> — AI를 통해 기존에 불가능했던 새로운 가치(13만 개 맞춤광고, 개인화 축하 메시지, 비용 효율 영상)를 창출했고, 기술 과시보다 소비자 경험과 브랜드 스토리를 우선했다.</p>
+      <p>② <strong>실패 사례의 공통점</strong> — 기존에 잘 작동하던 것을 AI로 대체함으로써 소비자와의 감성적 계약을 위반했다. "AI로 만들었다"는 사실 자체를 마케팅 포인트로 삼았다.</p>
+      <p>③ <strong>스튜디오캉 적용 원칙</strong> — AI 버츄얼 모델은 기존 모델이 할 수 없는 것(13만 개 개인화, 24시간 콘텐츠, 다국어 대응)을 제공할 때 가치가 극대화된다. 인간 모델을 단순 대체하는 것으로 포지셔닝되면 반감을 피하기 어렵다.</p>
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER V (구 IV: STUDIOKANG) ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter V</div>
+    <div class="chapter-title">스튜디오캉(STUDIOKANG) 분석</div>
+
+    <div class="section">
+      <div class="section-title">4.1 비즈니스 모델 및 서비스 구조</div>
+
+      <p>스튜디오캉(STUDIOKANG, studiokang.ai)은 한국 최초의 AI 버츄얼 모델 에이전시를 표방하는 스타트업으로, 선도적인 AI 기술력을 바탕으로 고품질 버츄얼 모델을 제공하여 브랜드 이미지를 높이고, 영향력 있는 버츄얼 인플루언서 IP를 육성하는 것을 목표로 한다.<span class="cite">[15]</span> 뷰티, 패션, 라이프스타일 분야를 주요 타겟 산업군으로 설정하고 있다.</p>
+
+      <div class="subsection-title">▪ 주요 AI 버츄얼 모델 라인업</div>
+
+      <div class="kang-models">
+        <div class="model-card">
+          <div class="model-name">강하리 Hari Kang</div>
+          <div class="model-tag">#Beautiful #Lovely</div>
+          <div class="model-tag">대표 모델</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">강하늘 Haneul Kang</div>
+          <div class="model-tag">#Casual #Friendly</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">루카스 Lucas</div>
+          <div class="model-tag">#Trendy #Stylish #Sporty</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">노아 Noa</div>
+          <div class="model-tag">#Athletic #Fit #Energetic</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">서희 Seohee</div>
+          <div class="model-tag">#Lovely #Trendy #Colorful</div>
+        </div>
+        <div class="model-card">
+          <div class="model-name">유하나 Hana Yoo</div>
+          <div class="model-tag">#Elegant #Graceful #Radiant</div>
+        </div>
+      </div>
+
+      <div class="subsection-title">▪ 핵심 가치 제안(Value Proposition)</div>
+      <p>스튜디오캉의 비즈니스 모델은 기존 실제 모델 섭외 대비 비용 효율성과 운영 유연성을 핵심으로 한다. 실제 모델의 경우 신인 기준 20~50만원(반일), 전문 모델은 200만원 이상이며, 대형 캠페인·옥외광고·TVC의 경우 더 큰 비용이 필요하다.<span class="cite">[16]</span> AI 버츄얼 모델을 활용하면 이러한 반복 섭외 비용 없이 다양한 콘텐츠 제작이 가능하다는 점이 주요 경쟁 우위다.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">2023년~</div>
+          <p>스튜디오캉 설립 · AI 버츄얼 모델 에이전시로 포지셔닝</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2024년</div>
+          <p>AI 버츄얼 인플루언서 강하리와 수원시 행궁동 웹드라마 및 홍보 콘텐츠 제작 프로젝트 수행</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025~2026년</div>
+          <p>뷰티·패션·라이프스타일 분야 브랜드 파트너십 확대 및 다수 모델 라인업 구축</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.2 시장 환경 분석</div>
+
+      <div class="chart-wrap" style="overflow-x:auto;">
+        <div class="chart-title">도표 6 — AI 버츄얼 모델 vs. 실제 모델: 항목별 비교</div>
+
+        <div style="background:#fff8e1; border-left:4px solid var(--accent-gold); padding:12px 16px; margin-bottom:14px; font-family:var(--sans); font-size:13px; color:var(--ink-light);">
+          <strong>작성 방침:</strong> 비용 항목은 실제 조사 데이터(스포트라이트 2026, 크몽 2025)를 기재한다. 소비자 반응·신뢰도 항목은 정량 측정 데이터가 없으므로 연구 문헌의 방향성 결과를 근거로 <strong>↑↓ 방향 표기</strong>로 대체한다. 점수화하지 않는다.
+        </div>
+
+        <table class="data-table" style="min-width:640px;">
+          <thead>
+            <tr>
+              <th style="min-width:150px;">비교 항목</th>
+              <th style="text-align:center;">AI 버츄얼 모델<br><small>(스튜디오캉 유형)</small></th>
+              <th style="text-align:center;">실제 인플루언서 모델</th>
+              <th style="min-width:180px;">근거·출처</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600;">촬영 1회 비용<br><small style="font-weight:400;">(룩북·SNS 콘텐츠)</small></td>
+              <td style="text-align:center;"><strong>월정액 방식</strong><br>평균 월 150~250만원</td>
+              <td style="text-align:center;">신인 20~50만원/회<br>중급 50~150만원/회<br>전문 200만원+/회</td>
+              <td>스포트라이트 플랫폼 (2026.01)<span class="cite">[18]</span><br>크몽 거래데이터 (2025)<span class="cite">[7①]</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">콘텐츠 제작 소요 기간</td>
+              <td style="text-align:center;"><strong>3~5 영업일</strong></td>
+              <td style="text-align:center;">2~3주<br>(일정 조율 포함)</td>
+              <td>업계 일반 관행 (스튜디오캉 서비스 기준)</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">모델 스캔들·사생활 리스크</td>
+              <td style="text-align:center;">해당 없음 (AI 캐릭터)</td>
+              <td style="text-align:center;">실재 — 계약 해지 위약금,<br>브랜드 이미지 손상 가능</td>
+              <td>업계 일반 사례 (임블리 사태 등 국내 인플루언서 스캔들 참조)<span class="cite">[4]</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">소비자 감성 연결<br><small style="font-weight:400;">(연구 방향성)</small></td>
+              <td style="text-align:center; color:var(--accent);">↓ 낮은 경향<br><small>실존 인물 대비</small></td>
+              <td style="text-align:center; color:var(--accent-teal);">↑ 높은 경향<br><small>진정성·공감 우위</small></td>
+              <td>Kim &amp; Lee, <em>IJA</em> 44(8), 2024: AI 에이전트 의인화가 소비자 신뢰 저하 유발<span class="cite">[13]</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">소비자 AI 수용도<br><small style="font-weight:400;">(현재 시점)</small></td>
+              <td style="text-align:center; color:var(--accent);">↓ 반감 상존<br><small>71% 신뢰 우려</small></td>
+              <td style="text-align:center; color:var(--accent-teal);">↑ 상대적 우위</td>
+              <td>소비자 설문: AI 콘텐츠 신뢰성 우려 71%, 법적 표시 의무 요구 83% (요즘IT 2025.09 재인용)<span class="cite">[14]</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">커스터마이징·다양성</td>
+              <td style="text-align:center; color:var(--accent-teal);">↑ 이론상 무제한<br><small>단, 현재 기술 한계 존재</small></td>
+              <td style="text-align:center;">다양성 모델 섭외 비용 증가</td>
+              <td>게스 사례: "플러스 사이즈 AI 모델 기술 부족" 자인 (ZDNet 2025.07)<span class="cite">[11]</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-family:var(--sans); font-size:12px; color:var(--ink-muted); margin-top:10px; line-height:1.8;">
+          <strong>표기 범례:</strong> 비용·기간 항목 = 실제 시장 조사 데이터 | ↑↓ = 연구 문헌 기반 방향성 (점수화 불가) | [7①] = 크몽 SNS 광고대행 비용 자료
+        </div>
+      </div>
+
+      <p>글로벌 AI 버츄얼 인플루언서 시장은 빠르게 성장하고 있으며, Lil Miquela(미국)와 같은 선례는 AI 캐릭터가 브랜드 협업과 팬덤 형성에 활용될 수 있음을 입증했다. 국내에서도 AI 버츄얼 인플루언서에 대한 관심이 높아지고 있으나, 소비자들의 AI 존재에 대한 인식과 수용도는 아직 형성 단계에 있다.</p>
+
+      <p>특히 본 연구에서 분석한 AI 광고 부정 사례들이 시사하는 바와 같이, AI 생성 콘텐츠에 대한 소비자 반감이 상존한다는 점은 스튜디오캉의 사업 전개에 있어 중요한 맥락이 된다. International Journal of Advertising(2024)의 연구에 따르면, 지나치게 의인화된 AI가 "마음의 언캐니밸리" 효과를 통해 소비자의 프라이버시 우려를 증폭시키는 반면, 기계적으로 표현된 AI는 오히려 소비자들이 더 안전하게 느낀다는 역설적 결과가 도출되었다.<span class="cite">[13]</span></p>
+    </div>
+
+    <!-- ── 연구자 현장 관찰 소견 ── -->
+    <div class="section">
+      <div class="section-title">5.3 연구자 현장 관찰 소견 — 스튜디오캉 실제 작업물 비교</div>
+
+      <div style="
+        background: #0f1f2e;
+        color: #e8e8f0;
+        border-left: 5px solid var(--accent-gold);
+        padding: 10px 24px 6px;
+        margin-bottom: 0;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent-gold);
+      ">연구자 개인 소견 · Researcher's Personal Observation</div>
+
+      <div style="
+        background: #0f1f2e;
+        color: #cdd0d8;
+        padding: 28px 32px 24px;
+        font-family: var(--sans);
+        font-size: 14.5px;
+        line-height: 2.0;
+        border-left: 5px solid var(--accent-gold);
+        margin-bottom: 8px;
+      ">
+        <p style="color:#a8b0c0; font-size:12px; margin-bottom:20px; font-family:var(--mono); letter-spacing:0.5px;">
+          ※ 본 섹션은 문헌·통계 근거가 아닌, 연구자가 스튜디오캉의 실제 유튜브 공개 작업물을 직접 시청하고 작성한 현장 관찰 의견이다.<br>
+          비교 대상: <a href="https://www.youtube.com/watch?v=JXnorecHdJc" style="color:#7ab8d8;" target="_blank">작업물 A (AI+인물 합성)</a> vs. <a href="https://www.youtube.com/watch?v=JiM5CUy_vyA" style="color:#7ab8d8;" target="_blank">작업물 B (AI 단독, 뷰티 콘텐츠)</a>
+        </p>
+
+        <p style="color:#e8e8f0; margin-bottom:16px;"><strong style="color:#f0c040;">관찰 1 — AI와 실제 인물을 합성한 작업물 A는 자연스럽다</strong></p>
+        <p>작업물 A는 실제 인물 촬영 데이터를 기반으로 AI가 외모·배경 요소를 합성한 방식이라서 그런지 전체적인 움직임과 제스처에 이질감이 없다. 인간의 실제 동작이 베이스로 깔려 있으니 AI가 시각적 부분만 덧씌우는 구조가 되고, 그 결과물이 소비자 입장에서도 자연스럽게 받아들여진다고 생각한다. 이처럼 AI가 인간의 움직임을 '대체'하는 것이 아니라 '보조'하는 역할로만 사용될 때 결과물의 완성도가 확연히 달라진다는 것을 이 작업물이 잘 보여준다.</p>
+
+        <p style="color:#e8e8f0; margin-bottom:16px; margin-top:24px;"><strong style="color:#f0c040;">관찰 2 — 뷰티 화장품 제스처는 AI 단독으로는 현재 기술 수준에서 한계가 분명하다</strong></p>
+        <p>작업물 B에서 가장 눈에 띄는 문제는 화장품을 피부에 바르는 동작이다. 화장품을 바를 때의 제스처는 단순한 움직임이 아니라, 제품의 질감·피부의 저항감·힘 조절이 복합적으로 반영된 동작인데, AI가 생성한 영상에서는 피부 위에서 미끄러지듯 움직이거나 힘의 강약 없이 균일하게 반복되는 특유의 이질감이 도드라진다. 뷰티 콘텐츠는 화면 클로즈업 비중이 높아 이 어색함이 더 크게 부각되는데, 이것이 바로 해당 카테고리에서 AI 단독 제작이 소비자 신뢰를 오히려 깎을 수 있는 핵심 이유라고 본다.</p>
+
+        <p style="color:#e8e8f0; margin-bottom:16px; margin-top:24px;"><strong style="color:#f0c040;">관찰 3 — AI 보이스가 뷰티 콘텐츠에서 특히 약점으로 작용한다</strong></p>
+        <p>작업물 B의 보이스오버는 AI로 생성된 것인데, 뷰티 콘텐츠 특성상 이 문제가 더 두드러진다. "촉촉하게", "스르륵 녹아든다"처럼 감각을 언어로 전달하는 표현들은 말하는 사람이 실제로 그 감각을 경험한 듯한 미세한 감탄과 억양이 실려야 설득력이 생긴다. 현재 AI 보이스는 이런 감각적 뉘앙스의 자연스러운 억양 변화를 충분히 구현하지 못하고 있어서, 영상 자체의 완성도와 별개로 보이스만으로도 "아, AI다"라는 인식을 강하게 심어준다. 뷰티 카테고리에서는 보이스오버에 대한 투자도 함께 이루어져야 한다는 점을 시사한다.</p>
+
+        <p style="color:#e8e8f0; margin-bottom:16px; margin-top:24px;"><strong style="color:#f0c040;">종합 — 스튜디오캉의 현재 포지셔닝에 대한 생각</strong></p>
+        <p>두 작업물을 직접 보면서 느낀 점은, 스튜디오캉이 기술적으로 완성도 높은 AI 버츄얼 모델을 이미 보유하고 있지만, 그것을 어떤 방식으로 활용하느냐에 따라 최종 결과물의 품질이 극명하게 갈린다는 것이다. 작업물 A처럼 인간과 협업하는 하이브리드 방식의 완성도는 이미 충분히 상용화 수준이라고 보이는 반면, 작업물 B처럼 AI 단독으로 화장품 바르는 동작을 생성하는 것은 아직 현재 기술 수준에서 상업적으로 선보이기에는 소비자 반감을 유발할 위험이 있다.</p>
+        <p>스튜디오캉 입장에서는 이것이 단순한 기술적 한계가 아니라 <strong style="color:#f0c040;">서비스 설계의 문제</strong>라고 생각한다. 클라이언트에게 "어떤 콘텐츠 유형에서 AI 단독이 적합하고, 어떤 유형에서는 반드시 하이브리드가 필요한지"를 명확히 가이드하는 것이 단기적으로는 납품 범위를 좁히는 것처럼 보이지만, 장기적으로는 브랜드 신뢰와 클라이언트 재계약률을 높이는 전략적 판단이라고 본다. 게스 사례처럼 AI 모델의 부자연스러움이 SNS를 통해 역풍으로 돌아올 경우, 그 피해는 클라이언트뿐만 아니라 스튜디오캉의 평판으로도 이어질 수 있기 때문이다.</p>
+      </div>
+
+      <div style="
+        background: #0f1f2e;
+        border-left: 5px solid var(--accent-gold);
+        padding: 12px 32px 14px;
+        font-family: var(--sans);
+        font-size: 12px;
+        color: #6a7080;
+        border-top: 1px solid #1e2e40;
+      ">
+        본 소견은 연구자의 직접 시청 경험에 기반한 주관적 관찰이며, 문헌 검토 결과(언캐니밸리, IJA 2024, System1 분석)와 방향성이 일치하나 인용 자료에서 독립된 개인 판단임을 명시한다.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.3 SWOT 분석</div>
+
+      <div class="swot-grid">
+        <div class="swot-cell s">
+          <div class="swot-label s">S · 강점 (Strengths)</div>
+          <ul>
+            <li>실제 모델 대비 현저히 낮은 반복 운영 비용</li>
+            <li>24시간 콘텐츠 생성 가능 · 스케줄 제약 없음</li>
+            <li>외모·의상·배경의 무제한 커스터마이징</li>
+            <li>모델 스캔들·사생활 리스크 Zero</li>
+            <li>다국어·다문화 시장 동시 대응 가능</li>
+          </ul>
+        </div>
+        <div class="swot-cell w">
+          <div class="swot-label w">W · 약점 (Weaknesses)</div>
+          <ul>
+            <li>소비자 감성 연결(Emotional Bond) 한계</li>
+            <li>AI임을 인지 시 브랜드 진정성 의구심</li>
+            <li>고품질 초기 모델 개발 비용 상당</li>
+            <li>동작·표정 자연스러움의 기술적 한계</li>
+            <li>국내 AI 버츄얼 모델 관련 규제 불확실성</li>
+          </ul>
+        </div>
+        <div class="swot-cell o">
+          <div class="swot-label o">O · 기회 (Opportunities)</div>
+          <ul>
+            <li>AI 콘텐츠 제작 비용 절감 수요 급증</li>
+            <li>K-패션·K-뷰티의 글로벌 확장에 동반 성장</li>
+            <li>메타버스·버츄얼 커머스 환경 확산</li>
+            <li>AI 기술 발전으로 품질 지속 향상</li>
+            <li>공공기관·지자체 홍보 새 수요(수원시 사례)</li>
+          </ul>
+        </div>
+        <div class="swot-cell t">
+          <div class="swot-label t">T · 위협 (Threats)</div>
+          <ul>
+            <li>AI 광고 반감 정서의 소비자 전파</li>
+            <li>글로벌 빅테크의 버츄얼 모델 시장 진출</li>
+            <li>딥페이크·AI 오남용 규제 강화 가능성</li>
+            <li>경쟁사의 유사 서비스 급증</li>
+            <li>AI 생성물 저작권·윤리 논란 확산</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">4.4 전략적 시사점</div>
+
+      <p>스튜디오캉이 앞서 분석한 AI 광고 부정 사례에서 교훈을 얻어야 할 핵심 전략 방향은 다음과 같다.</p>
+
+      <div class="subsection-title">① 투명성 기반 신뢰 구축</div>
+      <p>코카콜라 사례에서 드러난 "AI임을 마케팅 포인트로 삼는 것 자체가 문제"라는 역설과 달리, 카스 맥주의 'AI 보이스 축카스' 캠페인은 AI 활용을 <em>투명하게 공개하면서</em> 소비자 참여를 유도하여 성공을 거두었다.<span class="cite">[17]</span> 스튜디오캉 역시 AI 모델임을 명시하되, 이를 브랜드의 혁신성과 접근성으로 프레이밍하는 전략이 효과적일 것이다.</p>
+
+      <div class="subsection-title">② 고관여 정서 콘텐츠에서의 신중한 접근</div>
+      <p>코카콜라 크리스마스 광고 사례는 높은 감성적 헤리티지를 가진 브랜드 자산에 AI를 무분별하게 적용할 경우 역효과가 크다는 것을 보여준다. 스튜디오캉 모델을 활용하는 브랜드들은 감성적 스토리텔링보다는 <strong>제품 착장 및 룩북, 브랜드 인지도 빌딩</strong>에 우선 활용하는 것이 리스크를 낮추는 접근이다.</p>
+
+      <div class="subsection-title">③ K-패션 글로벌 전략과의 연계</div>
+      <p>마뗑킴, 마르디 메크르디 등 K-패션 브랜드의 글로벌 성공은 인플루언서와의 진정성 있는 협업을 통해 이루어졌다.<span class="cite">[18]</span> AI 버츄얼 인플루언서가 실제 인플루언서의 완전한 대체재가 아닌 <em>보완재</em>로 포지셔닝될 때, 비용 효율성과 브랜드 신뢰를 동시에 확보할 수 있다.</p>
+
+      <div class="subsection-title">④ 공공·지자체 시장 집중 전략</div>
+      <p>스튜디오캉이 수행한 수원시 행궁동 웹드라마 및 홍보 콘텐츠 제작 프로젝트는 흥미로운 선례다.<span class="cite">[15]</span> 공공 분야는 인플루언서 스캔들 리스크에 민감하고 반복 촬영 비용에 부담을 느끼는 반면, AI 버츄얼 모델의 제약에 대한 소비자 기대치가 낮아 진입 장벽이 상대적으로 낮다.</p>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">도표 7 — 스튜디오캉 포지셔닝 매트릭스: AI 모델 활용 분야별 기회·위험</div>
+      <canvas id="positionChart" height="260"></canvas>
+      <div class="chart-caption">X축: 소비자 감성 민감도 (낮음→높음), Y축: AI 수용도 (낮음→높음). 사분면 내 원의 크기는 시장 규모를 나타냄</div>
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER VI (결론) ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter VI</div>
+    <div class="chapter-title">종합 결론 및 제언</div>
+
+    <p>본 연구는 SNS 프로모션의 비용 구조 분석, AI 광고 부정 사례 검토, 그리고 스튜디오캉의 전략적 맥락 분석을 통해 다음과 같은 핵심 결론을 도출했다.</p>
+
+    <div class="section">
+      <div class="section-title">종합 결론</div>
+
+      <p><strong>첫째, SNS 광고 시장은 플랫폼별 단가 격차가 크며 AI 도구의 도입으로 콘텐츠 제작 비용이 급격히 하락하고 있다.</strong> 그러나 비용 절감이 반드시 효과 상승으로 이어지지 않으며, LGU+의 95% 비용 절감 사례는 AI 도구를 전략적으로 활용할 때만 실현 가능하다는 점을 보여준다.</p>
+
+      <p><strong>둘째, AI 광고의 실패는 기술의 문제가 아니라 전략과 인간 이해의 문제다.</strong> 코카콜라·토이저러스·맥도날드 세 사례 모두, AI 기술 자체의 문제보다는 브랜드와 소비자 사이의 정서적 계약을 AI가 훼손한 것이 핵심 실패 원인이었다. 구글 크리에이티브랩 부사장 로버트 웡의 발언 — "소비자들은 광고가 AI로 만들어졌는지 신경 쓰지 않는다. 중요한 것은 스토리텔링이다"<span class="cite">[19]</span> — 이 이를 잘 요약한다.</p>
+
+      <p><strong>셋째, AI 버츄얼 모델 시장은 유망하나 소비자 신뢰 구축이 선결 과제다.</strong> 스튜디오캉과 같은 AI 버츄얼 모델 에이전시는 비용 효율성이라는 강력한 가치 제안을 보유하고 있으나, International Journal of Advertising(2024)이 제시한 '마음의 언캐니밸리' 현상을 극복하기 위한 투명성 전략과 알고리즘 공개(Algorithmic Disclosure)가 필요하다.<span class="cite">[13]</span></p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">실무 제언</div>
+
+      <div class="table-label">표 4. AI 광고 활용 단계별 권장 전략</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>단계</th><th>활용 영역</th><th>권장 접근</th><th>주의 사항</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>도입기</strong></td>
+            <td>제품 착장샷, 룩북, SNS 피드 콘텐츠</td>
+            <td>AI 모델 활용 명시적 공개, 보조 도구로 포지셔닝</td>
+            <td>헤리티지 브랜드 핵심 캠페인에 AI 전면 배치 금물</td>
+          </tr>
+          <tr>
+            <td><strong>성장기</strong></td>
+            <td>인터랙티브 캠페인, 개인화 메시지</td>
+            <td>소비자 참여형 AI 활용 (카스 사례 참조)</td>
+            <td>감성 고관여 시즌(크리스마스, 명절) 신중 접근</td>
+          </tr>
+          <tr>
+            <td><strong>성숙기</strong></td>
+            <td>버츄얼 인플루언서 IP 독립 구축</td>
+            <td>독자적 팬덤 형성, 콘텐츠 IP화</td>
+            <td>알고리즘 투명성 법적 기준 선제 준수</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ───────────── STUDIOKANG USER SCENARIOS ───────────── -->
+  <div class="chapter">
+    <div class="chapter-num">Chapter V · Part 2</div>
+    <div class="chapter-title">스튜디오캉 서비스 활용 시나리오 (User Scenario Draft)</div>
+
+    <p>다음 두 가지 시나리오는 스튜디오캉의 AI 버츄얼 모델 서비스가 실제 클라이언트 업무에 적용되는 구체적 프로세스를 기술한 초안이다. 각 시나리오는 클라이언트 유형·목표·진행 흐름·예상 성과·위험 요소를 포함한 실무 제출용 형식으로 작성되었다.</p>
+
+    <!-- SCENARIO 1 -->
+    <div class="case-card" style="border: 2px solid var(--accent-gold); margin-top:40px;">
+      <div class="case-num" style="background: var(--accent-gold); color: #1a1a2e;">SCENARIO 01</div>
+      <div class="case-header" style="background: #fff8e1; border-bottom: 1px solid var(--accent-gold);">
+        <div class="case-brand" style="font-size:22px;">K-뷰티 D2C 브랜드 — 시즌 신제품 룩북·SNS 콘텐츠 정기 제작</div>
+        <div class="case-date">클라이언트 유형: 국내 D2C 뷰티 스타트업 (연 매출 30~100억 원 규모)</div>
+        <div style="margin-top:10px;">
+          <span class="tag" style="background:var(--accent-gold); color:#1a1a2e;">비용 절감형</span>
+          <span class="tag blue">정기 구독형 계약</span>
+          <span class="tag">인스타그램 / 쇼핑몰 전용</span>
+        </div>
+      </div>
+      <div class="case-body">
+
+        <div class="subsection-title">▪ 클라이언트 배경 및 Pain Point</div>
+        <table class="data-table" style="margin-top:8px;">
+          <tbody>
+            <tr><td style="width:140px; font-weight:600;">업종</td><td>국내 D2C 뷰티 브랜드 (스킨케어·색조 병행)</td></tr>
+            <tr><td style="font-weight:600;">현재 과제</td><td>시즌당 3~5종 신제품 출시 시 매번 모델 섭외·스튜디오 촬영·헤어메이크업 비용 발생 (건당 평균 150~300만원). 신제품 출시 주기(4~6주) 대비 촬영 일정 확보가 어려움</td></tr>
+            <tr><td style="font-weight:600;">마케팅 목표</td><td>Instagram 피드·릴스, 쇼핑몰 메인 배너, 스마트스토어 상세페이지용 이미지 콘텐츠를 빠르고 일관된 톤앤매너로 제작</td></tr>
+            <tr><td style="font-weight:600;">예산</td><td>기존 촬영 예산 월 400~600만원 → AI 모델 도입 후 월 150~250만원 목표</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">▪ 스튜디오캉 서비스 적용 방식</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">Step 1 — 온보딩 (1~2주)</div>
+            <p><strong>브랜드 가이드라인 전달:</strong> 클라이언트가 브랜드 컬러, 기존 광고 레퍼런스, 타겟 페르소나(예: 25~35세 한국 여성) 자료를 스튜디오캉에 공유. 스튜디오캉은 기존 모델 라인업(강하리·유하나 등) 중 브랜드 이미지와 가장 부합하는 AI 버츄얼 모델 1~2인을 추천하고 샘플 이미지 5~10장 시범 제작 후 클라이언트 승인을 받는다.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Step 2 — 정기 콘텐츠 제작 (월 1~2회)</div>
+            <p><strong>촬영 요청서 제출:</strong> 클라이언트 마케팅 담당자가 신제품 정보(제품명, 컬러, 사용 장면), 배경 컨셉(화이트 스튜디오/아웃도어/라이프스타일), 사용 플랫폼(인스타그램 정방형·세로형/배너) 등을 담은 요청서를 제출한다. 스튜디오캉은 3~5 영업일 내 초안 이미지 일괄 납품. 수정 2회까지 기본 포함.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Step 3 — 활용 및 효과 측정 (월말)</div>
+            <p><strong>멀티플랫폼 배포:</strong> 납품된 이미지·영상을 인스타그램 피드, 쇼핑몰 배너, 광고 소재에 사용. 클라이언트는 ROAS, 클릭률, 팔로워 반응을 월별 리포트로 공유하며 스튜디오캉과 함께 다음 시즌 방향성 협의.</p>
+          </div>
+        </div>
+
+        <div class="subsection-title">▪ 예상 계약 구조 및 비용</div>
+        <table class="data-table">
+          <thead><tr><th>항목</th><th>기존 (실제 모델)</th><th>스튜디오캉 AI 모델</th><th>절감 효과</th></tr></thead>
+          <tbody>
+            <tr><td>모델 섭외비</td><td>50~150만원/회</td><td>월정액 포함</td><td class="highlight">100% 절감</td></tr>
+            <tr><td>스튜디오 대여</td><td>30~80만원/회</td><td>불필요</td><td class="highlight">100% 절감</td></tr>
+            <tr><td>헤어·메이크업</td><td>30~60만원/회</td><td>불필요</td><td class="highlight">100% 절감</td></tr>
+            <tr><td>콘텐츠 제작비</td><td>50~100만원/회</td><td>월 150~250만원(정액)</td><td>약 40~60% 절감</td></tr>
+            <tr><td>제작 소요 기간</td><td>2~3주 (일정 조율 포함)</td><td class="highlight">3~5 영업일</td><td>최대 80% 단축</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">▪ 위험 요소 및 대응 방안</div>
+        <div class="fail-analysis">
+          <div class="fail-item">
+            <div class="fail-label strategic">소비자 반감 위험</div>
+            AI 모델임을 인지한 소비자의 "가짜와 비교당하기 싫다"는 반응 (게스 사례 참조). → 대응: 제품 착장 중심 콘텐츠에 집중. AI 모델임을 명시하지 않더라도 법적 표시 의무 준수. 초기에는 실제 모델과 AI 모델 혼합 사용으로 소비자 반응 테스트
+          </div>
+          <div class="fail-item">
+            <div class="fail-label tech">저작권·초상권 이슈</div>
+            AI 생성 이미지의 저작권 귀속 및 모델 IP 사용 범위가 계약서상 명확히 정의되어야 함. → 대응: 계약 체결 시 사용 플랫폼, 사용 기간, 상업적 활용 범위, 2차 편집 허용 여부 등을 조항으로 명시
+          </div>
+          <div class="fail-item">
+            <div class="fail-label emotional">브랜드 일관성 유지</div>
+            AI 모델의 외모·톤앤매너가 시즌마다 미세하게 달라질 경우 브랜드 이미지 일관성 훼손. → 대응: 온보딩 시 확정된 모델 기준 이미지(마스터 레퍼런스)를 공식 문서로 관리하고 모든 제작물의 기준으로 활용
+          </div>
+          <div class="fail-item">
+            <div class="fail-label ethical">AI 표기 법적 리스크</div>
+            2026년 이후 AI 생성 광고 콘텐츠에 대한 표기 의무화 법안 논의 증가 (소비자 83%가 표시 의무 요구). → 대응: 광고 소재에 소형 AI 표기 아이콘 병기하는 자발적 투명성 정책 선제 도입
+          </div>
+        </div>
+
+        <div class="insight" style="margin-top:20px;">
+          <p><strong>예상 성과:</strong> 기존 대비 콘텐츠 제작비 40~60% 절감, 출시 속도 2~3배 단축, 시즌별 A/B 소재 테스트 수 최대 3배 증가. 모델 스캔들·일정 불발 등 외부 리스크 제거로 마케팅 캘린더의 안정성 확보.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENARIO 2 -->
+    <div class="case-card" style="border: 2px solid var(--accent-blue); margin-top:40px;">
+      <div class="case-num" style="background: var(--accent-blue);">SCENARIO 02</div>
+      <div class="case-header" style="background: #e3f2fd; border-bottom: 1px solid var(--accent-blue);">
+        <div class="case-brand" style="font-size:22px;">지자체 관광청 — AI 버츄얼 앰배서더 도입 및 홍보 콘텐츠 연간 제작</div>
+        <div class="case-date">클라이언트 유형: 광역·기초 지자체 관광 담당 부서 또는 지역 관광공사 (예: 수원시 수원문화재단)</div>
+        <div style="margin-top:10px;">
+          <span class="tag" style="background:var(--accent-blue);">공공기관 특화</span>
+          <span class="tag teal">버츄얼 앰배서더 IP 구축</span>
+          <span class="tag">연간 계약</span>
+        </div>
+      </div>
+      <div class="case-body">
+
+        <div class="subsection-title">▪ 클라이언트 배경 및 Pain Point</div>
+        <table class="data-table" style="margin-top:8px;">
+          <tbody>
+            <tr><td style="width:140px; font-weight:600;">발주처</td><td>지자체 관광 홍보 부서 (예: 수원문화재단 · 관광 담당과)</td></tr>
+            <tr><td style="font-weight:600;">현재 과제</td><td>관광 홍보 콘텐츠에 유명인 모델 기용 시 예산 부담(연 1~5억 원 수준) + 계약 종료 시 홍보 연속성 단절. 유명인 스캔들 발생 시 공공기관 이미지 훼손 리스크 실재. 특정 계층에 편향되지 않는 '중립적이고 친근한' 홍보 캐릭터 필요</td></tr>
+            <tr><td style="font-weight:600;">마케팅 목표</td><td>지역 관광지 SNS 콘텐츠(인스타그램, 유튜브 쇼츠, 공식 홈페이지), 관광 안내 웹드라마·브이로그 형식 영상 콘텐츠, 지역 행사 홍보 포스터 등 연간 정기 제작</td></tr>
+            <tr><td style="font-weight:600;">예산 규모</td><td>연간 홍보 예산 1~3억 원 내 AI 버츄얼 모델 도입 항목 신설</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">▪ 스튜디오캉 서비스 적용 방식</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 1 — 버츄얼 앰배서더 IP 개발 (3개월)</div>
+            <p><strong>전용 캐릭터 개발:</strong> 기존 스튜디오캉 모델 라인업 활용 또는 지자체 요청에 따른 전용 버츄얼 앰배서더 개발. 지역 특성(문화·역사·자연)을 반영한 스타일링과 퍼스낼리티 설정. 예: 수원시 경우 '화성 행궁' 콘셉트의 한복·캐주얼 혼합 스타일링 모델. 캐릭터 최종 확정 후 IP 문서 작성(외모 가이드라인, 사용 금지 맥락, 승인 프로세스).</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 2 — 콘텐츠 정기 제작 (연간)</div>
+            <p><strong>쿼터별 콘텐츠 패키지:</strong> 분기당 SNS 피드 이미지 20~30장, 쇼츠·릴스용 영상 클립 4~8편, 시즌 이벤트 포스터 2~4종을 납품하는 정기 계약 구조. 특별 이벤트(축제, 행사) 시 추가 발주 옵션 포함. 모든 콘텐츠는 지자체 담당자의 2단계 승인(초안→최종)을 거쳐 확정.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 3 — 웹드라마·홍보 영상 특별 프로젝트 (연 1~2회)</div>
+            <p><strong>스토리 기반 영상 제작:</strong> 스튜디오캉 AI 버츄얼 모델이 지역 관광지를 직접 소개하는 5~15분 분량의 웹드라마 또는 관광 브이로그 형식 영상. 실제 지역 풍경 영상 위에 AI 모델을 합성하는 방식. 내레이션·자막은 인간 작가 제작, AI는 모델 이미지 제공 역할로 명확히 분리하여 저작권 리스크 최소화. (수원시 행궁동 웹드라마 실적 기반 제안)</p>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 4 — 성과 측정 및 연장 협의 (연말)</div>
+            <p><strong>KPI 리뷰:</strong> SNS 팔로워 증가율, 게시물 도달 수, 웹드라마 조회 수, 관광 홍보 예산 대비 콘텐츠 제작 단가 절감율 등을 측정하여 다음 연도 계약 갱신 여부 및 범위를 협의.</p>
+          </div>
+        </div>
+
+        <div class="subsection-title">▪ 공공기관 도입 시 핵심 설계 원칙</div>
+        <table class="data-table">
+          <thead><tr><th>원칙</th><th>구체적 방안</th><th>근거</th></tr></thead>
+          <tbody>
+            <tr><td><strong>AI 표기 투명성</strong></td><td>모든 콘텐츠에 'AI 버츄얼 모델 활용' 표기 의무화</td><td>소비자 83% 표시 의무 요구 (2025년 설문)</td></tr>
+            <tr><td><strong>다양성 확보</strong></td><td>다양한 연령대·체형 설정 옵션 제안 (게스 사례 반면교사)</td><td>공공기관 포용성 원칙</td></tr>
+            <tr><td><strong>스캔들 리스크 제로</strong></td><td>실존 인물 없는 AI 캐릭터로 인사 리스크 원천 차단</td><td>공공기관 이미지 보호</td></tr>
+            <tr><td><strong>IP 귀속 명확화</strong></td><td>지자체가 해당 앰배서더 캐릭터의 사용권 우선 보유</td><td>지속 가능한 홍보 연속성</td></tr>
+            <tr><td><strong>예산 투명성</strong></td><td>항목별 단가 명시, 추가 발주 단가 사전 합의</td><td>공공기관 예산 집행 투명성</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">▪ 수원시 행궁동 선행 사례와 연계 근거</div>
+        <p>스튜디오캉은 이미 수원시 행궁동과의 웹드라마 및 홍보 콘텐츠 제작 프로젝트를 수행한 실적이 있다.<span class="cite">[17]</span> 이는 공공기관 대상 AI 버츄얼 모델 활용의 국내 선행 사례로서, 기술 완성도·발주 프로세스·예산 집행 방식에 대한 레퍼런스를 확보했음을 의미한다. 이 실적을 기반으로 타 광역·기초 지자체로의 확장 영업이 가능하다는 점이 시나리오 2의 핵심 전략적 근거다.</p>
+
+        <div class="case-grid">
+          <div class="case-metric" style="border-left-color:var(--accent-blue);">
+            <div class="case-metric-label">레퍼런스</div>
+            <div class="case-metric-value">수원시 행궁동 웹드라마 (실적)</div>
+          </div>
+          <div class="case-metric" style="border-left-color:var(--accent-blue);">
+            <div class="case-metric-label">목표 시장</div>
+            <div class="case-metric-value">지자체 관광홍보 예산 시장</div>
+          </div>
+          <div class="case-metric" style="border-left-color:var(--accent-blue);">
+            <div class="case-metric-label">경쟁 우위</div>
+            <div class="case-metric-value">스캔들 리스크 Zero + 예산 효율</div>
+          </div>
+        </div>
+
+        <div class="insight" style="margin-top:20px; border-color: var(--accent-blue);">
+          <p style="white-space: pre-wrap;"><strong>예상 성과:</strong> 유명인 모델 계약 대비 연간 홍보비 40~70% 절감. 특정 홍보 모델 이미지에 종속되지 않는 지속 가능한 지역 홍보 앰배서더 확보. 지역 특화 AI 캐릭터가 지역 정체성(Place Identity)과 결합될 경우 독자적 IP 가치 형성 가능. 타 지자체 확장 시 스튜디오캉의 공공기관 포트폴리오 강화.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────── CHAPTER VI (구 V: 결론) ───────────── -->
+  <div class="references">
+    <h3>참고문헌 · References</h3>
+    <div class="ref-item"><span class="ref-num">[1]</span> 요즘IT (2025.09.02). "AI로 만든 광고, 저만 부담스럽나요?" https://yozm.wishket.com/magazine/detail/3323/</div>
+    <div class="ref-item"><span class="ref-num">[2]</span> Shopify Korea (2025.11). "Facebook 광고 비용은 얼마인가요? (2026 보고서)". https://www.shopify.com/kr/blog/facebook-ads-cost</div>
+    <div class="ref-item"><span class="ref-num">[3]</span> 뷰저블(Beusable) (2020.11.04). "SNS 광고 예산 설정 시 잠재고객 채널 발굴을 돕는 UX 데이터". https://www.beusable.net/blog/?p=3926</div>
+    <div class="ref-item"><span class="ref-num">[4]</span> 브런치 (2024.05.14). "인스타그램 마케팅 가격 얼마가 적당할까?" https://brunch.co.kr/@parkkyunga/24</div>
+    <div class="ref-item"><span class="ref-num">[5]</span> 아이보스 (2024.08.14). "인플루언서 체험단 마케팅 광고비, 어느 정도가 적당할까?" https://www.i-boss.co.kr/ab-6141-63541</div>
+    <div class="ref-item"><span class="ref-num">[6]</span> Ballast I&C. "회사 규모에 따른 콘텐츠 마케팅 예산 편성". https://ballast.co.kr/insights/</div>
+    <div class="ref-item"><span class="ref-num">[7]</span> 한국경제 (2024.11.20). "코카콜라 29년 이어온 크리스마스 광고, 뭇매 맞는 이유". https://www.hankyung.com/article/2024112024747</div>
+    <div class="ref-item"><span class="ref-num">[8]</span> Brand Brief (2024.07.31). "애플의 실수 그대로 답습한 구글… AI 역풍 맞은 '제미나이' 올림픽 광고". https://www.brandbrief.co.kr/news/articleView.html?idxno=7157</div>
+    <div class="ref-item"><span class="ref-num">[9]</span> AI Times (2024.08.05). "구글, 올림픽 AI 광고 '디어 시드니' 방송 중단". https://www.aitimes.kr/news/articleView.html?idxno=31875 / The Hollywood Reporter (2024.08.02). "Google Pulls 'Dear Sydney' Gemini AI Ad From Olympics". https://tech.yahoo.com/ai/articles/google-pulls-dear-sydney-gemini-145326300.html</div>
+    <div class="ref-item"><span class="ref-num">[10]</span> Brand Brief (2025.08.04). "'너무 완벽하다 했더니 AI였어?'… 보그 미국판에 등장한 게스 광고에 업계 '들썩'". https://www.brandbrief.co.kr/news/articleView.html?idxno=8654</div>
+    <div class="ref-item"><span class="ref-num">[11]</span> ZDNet Korea (2025.07.28). "AI 모델 쓴 게스, '싸구려 꼼수' 비난 쇄도…패션계 수년간 노력 물거품". https://zdnet.co.kr/view/?no=20250728150541</div>
+    <div class="ref-item"><span class="ref-num">[12]</span> 뉴시스 (2025.08.01). "'보그'에 등장한 AI 모델...소비자 '둘 다 불매 운동'". https://www.newsis.com/view/NISX20250801_0003275287</div>
+    <div class="ref-item"><span class="ref-num">[13]</span> Kim, J., & Lee, S. (2024). "That uncanny valley of mind: when anthropomorphic AI agents disrupt personalized advertising." <em>International Journal of Advertising</em>, 44(8), 1684–1713. DOI: 10.1080/02650487.2024.2411669</div>
+    <div class="ref-item"><span class="ref-num">[14]</span> 요즘IT (2025.09.02). "AI로 만든 광고 저만 부담스럽나요?" — 소비자 설문 71%, 83% 수치 인용. https://yozm.wishket.com/magazine/detail/3323/</div>
+    <div class="ref-item"><span class="ref-num">[15]</span> 경향신문 (2025.11.16). "혹평에도 또…코카콜라 'AI 크리스마스 광고' 보니". https://v.daum.net/v/20251116162648634</div>
+    <div class="ref-item"><span class="ref-num">[16]</span> MMM Online (2026.03). "OpenAI Shuts Down Sora, Billion-Dollar Disney Deal Comes to an End" — Coca-Cola 2025 AI ad 제작 세부 사항 포함. https://www.mmm-online.com/news/openai-shuts-down-sora-billion-dollar-disney-deal-comes-to-an-end/</div>
+    <div class="ref-item"><span class="ref-num">[17]</span> STUDIOKANG (2024~2026). 공식 웹사이트. http://studiokang.ai/</div>
+    <div class="ref-item"><span class="ref-num">[18]</span> 스포트라이트(Spotlite) (2026.01.24). "모델 섭외 적정 비용은?" https://spotlite.global/blog-kr/model-casting-cost-comparison</div>
+    <div class="ref-item"><span class="ref-num">[19]</span> 요즘IT (2025.09.02). 위의 글 — 카스 '축카스' 캠페인 사례.</div>
+    <div class="ref-item"><span class="ref-num">[20]</span> 스프레이(Spray) (2025.09.16). "마케팅 사례: 세계가 주목한 K-패션, 그 성공의 공식". https://spray.io/ko/blog/casestudy-fashion</div>
+    <div class="ref-item"><span class="ref-num">[A1]</span> 요즘IT (2025.09.02). "AI로 만든 광고 저만 부담스럽나요?" — System1 CCO 존 에반스 발언, 카스 '축카스' 사례 포함. https://yozm.wishket.com/magazine/detail/3323/</div>
+    <div class="ref-item"><span class="ref-num">[A2]</span> Brand Brief (2023.07.06). "칸 라이언즈 2023 AI 전시대·언더독의 활약·세대교체 — 캐드버리 샤룩칸 My Ad 그랑프리". https://www.brandbrief.co.kr/news/articleView.html?idxno=6109</div>
+    <div class="ref-item"><span class="ref-num">[A3]</span> Brand Brief (2023.07.26). "착한 크리에이티비티가 비즈니스의 목적이 될 수 있을까? 칸 라이언즈 2023 랩업 리포트④ — 캐드버리 관련 섹션". https://www.brandbrief.co.kr/news/articleView.html?idxno=6153</div>
+    <div class="ref-item"><span class="ref-num">[A4]</span> 패스트캠퍼스 미디어 (2025.03.26). "AI가 만든 광고, 여기 다 모였다! — 카스 축카스 AI 보이스 캠페인 섹션". https://media.fastcampus.co.kr/insight/ai_creative/aiad1/</div>
+    <div class="ref-item"><span class="ref-num">[A5]</span> 캐럿 비즈니스플랜 (2025.11.20). "생성형 AI 광고 사례: 대기업들은 어떻게 만들고 있을까? — 구글 Veo3 추수감사절 광고, 로버트 웡 발언 인용". https://carat.im/blog/ai-advertising-case-studies</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CHART SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script>
+const INK = '#1a1a2e';
+const ACCENT = '#c0392b';
+const GOLD = '#d4a017';
+const BLUE = '#2c5f8a';
+const TEAL = '#1a7a6e';
+const MUTED = '#7a7a9d';
+
+Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+Chart.defaults.color = INK;
+
+// ── 도표 1: Platform CPC/CPM ──────────────────────────────
+new Chart(document.getElementById('platformCostChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Facebook', 'Instagram', 'TikTok', 'YouTube\n(조회당)', 'Google Ads\n(평균)', '네이버 배너\n(CPM ÷10)'],
+    datasets: [
+      {
+        label: 'CPC ($)',
+        data: [0.87, 0.75, 1.00, 0.20, 2.50, 0.50],
+        backgroundColor: BLUE + 'cc',
+        borderColor: BLUE,
+        borderWidth: 1,
+      },
+      {
+        label: 'CPM ($)',
+        data: [16.06, 9.00, 10.00, 12.00, 3.50, 0.50],
+        backgroundColor: GOLD + 'cc',
+        borderColor: GOLD,
+        borderWidth: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top' } },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: '비용 ($)' } }
+    }
+  }
+});
+
+// ── 도표 2a: 모델 경력별 섭외 비용 ─────────────────────────
+new Chart(document.getElementById('modelCostChart'), {
+  type: 'bar',
+  data: {
+    labels: ['신인\n(20~50만원)', '중급\n(50~150만원)', '전문\n(200만원+)'],
+    datasets: [{
+      label: '최소 (만원)',
+      data: [20, 50, 200],
+      backgroundColor: TEAL + 'aa',
+      borderColor: TEAL,
+      borderWidth: 1,
+    },{
+      label: '최대 (만원)',
+      data: [50, 150, 500],
+      backgroundColor: ACCENT + 'aa',
+      borderColor: ACCENT,
+      borderWidth: 1,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top' }, title: { display: true, text: '실제 모델 섭외 단가' } },
+    scales: { y: { beginAtZero: true, title: { display: true, text: '비용 (만원)' } } }
+  }
+});
+
+// ── 도표 2b: 인플루언서 규모별 비용 ─────────────────────────
+new Chart(document.getElementById('influencerTypeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['나노 (1K~10K)', '마이크로 (10K~100K)', '매크로 (100K~1M)', '메가 (1M+)'],
+    datasets: [{
+      data: [1, 3, 8, 25],
+      backgroundColor: [TEAL + 'bb', BLUE + 'bb', GOLD + 'bb', ACCENT + 'bb'],
+      borderColor: ['#fff','#fff','#fff','#fff'],
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { 
+      legend: { position: 'right', labels: { font: { size: 11 } } },
+      title: { display: true, text: '인플루언서 규모별 인스타그램\n평균 비용 가중치' }
+    }
+  }
+});
+
+// ── 도표 3: Budget Structure ─────────────────────────────
+new Chart(document.getElementById('budgetChart'), {
+  type: 'bar',
+  data: {
+    labels: ['소규모\n(월100만원)', '중소기업\n(월300만원)', '중견기업\n(월1000만원)', '대기업\n(월5000만원+)'],
+    datasets: [
+      { label: '인건비', data: [70, 150, 500, 2500], backgroundColor: BLUE + 'cc' },
+      { label: 'SNS 광고비', data: [20, 100, 300, 1500], backgroundColor: GOLD + 'cc' },
+      { label: '콘텐츠 제작비', data: [10, 50, 200, 1000], backgroundColor: TEAL + 'cc' },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top' } },
+    scales: {
+      x: { stacked: true },
+      y: { stacked: true, title: { display: true, text: '예산 (만원)' } }
+    }
+  }
+});
+
+// ── 도표 7: 포지셔닝 버블차트 ────────────────────────────
+new Chart(document.getElementById('positionChart'), {
+  type: 'bubble',
+  data: {
+    datasets: [
+      {
+        label: '제품 착장·룩북',
+        data: [{ x: 3, y: 8, r: 18 }],
+        backgroundColor: TEAL + 'bb',
+        borderColor: TEAL,
+      },
+      {
+        label: '공공·지자체 홍보',
+        data: [{ x: 2, y: 7, r: 14 }],
+        backgroundColor: BLUE + 'bb',
+        borderColor: BLUE,
+      },
+      {
+        label: '브랜드 인지도 캠페인',
+        data: [{ x: 5, y: 6, r: 16 }],
+        backgroundColor: GOLD + 'bb',
+        borderColor: GOLD,
+      },
+      {
+        label: '감성 브랜드 헤리티지',
+        data: [{ x: 9, y: 3, r: 22 }],
+        backgroundColor: ACCENT + 'aa',
+        borderColor: ACCENT,
+      },
+      {
+        label: '인터랙티브 참여형',
+        data: [{ x: 6, y: 7, r: 12 }],
+        backgroundColor: '#9b59b6bb',
+        borderColor: '#9b59b6',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'right' } },
+    scales: {
+      x: {
+        min: 0, max: 10,
+        title: { display: true, text: '← 감성 민감도 낮음 | 높음 →' }
+      },
+      y: {
+        min: 0, max: 10,
+        title: { display: true, text: '← AI 수용도 낮음 | 높음 →' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
